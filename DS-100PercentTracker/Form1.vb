@@ -10,7 +10,7 @@ Public Class Form1
     Private WithEvents refTimer As New System.Windows.Forms.Timer()
     Private WithEvents igtTimer As New System.Windows.Forms.Timer()
 
-    Dim isCurrentlyInLoadScreen As Boolean
+    Dim isPlayerInGame As Boolean
 
     Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAcess As UInt32, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Int32) As IntPtr
     Private Declare Function ReadProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
@@ -280,7 +280,7 @@ Public Class Form1
             refTimer.Enabled = True
 
             igtTimer = New System.Windows.Forms.Timer
-            igtTimer.Interval = 40
+            igtTimer.Interval = 50
             igtTimer.Enabled = True
 
             initFlagHook1()
@@ -430,11 +430,8 @@ Public Class Form1
 
     Private Sub igtTimer_Tick() Handles igtTimer.Tick
         Dim currentIGT = GetIngameTimeInMilliseconds()
-        If (Not currentIGT = prevIGT) And (Not currentIGT = 0 And Not prevIGT = 0) Then
-            isCurrentlyInLoadScreen = False
-        Else
-            isCurrentlyInLoadScreen = True
-        End If
+        'If the IGT doesn't change then that means either loadscreen or main menu
+        isPlayerInGame = currentIGT <> prevIGT And currentIGT <> 0
         prevIGT = currentIGT
     End Sub
 
@@ -443,7 +440,7 @@ Public Class Form1
 
         ' Timer running at an interval of 1000ms. Checks all the flags defined at the top
 
-        If IsPlayerLoaded() = False Then
+        If IsPlayerLoaded() = False Or isPlayerInGame = False Then
             Return
         End If
 
@@ -537,7 +534,6 @@ Public Class Form1
 
             If value = True Then
                 npcQuestlinesCompleted += 1
-                Console.WriteLine(item)
             ElseIf item = 1003 Then 'Solaire has two outcomes: dead or rescued in Izalith
                 value = GetEventFlagState(1011)
                 If value = True Then
@@ -595,7 +591,7 @@ Public Class Form1
         percentage = Math.Floor(percentage * 100)
 
         'Before updating, check if the player is in a loadscreen to make sure all flags have been accounted for
-        If IsPlayerLoaded() = False Then
+        If IsPlayerLoaded() = False And isPlayerInGame = False Then
             refTimer.Start()
             Return
         End If
