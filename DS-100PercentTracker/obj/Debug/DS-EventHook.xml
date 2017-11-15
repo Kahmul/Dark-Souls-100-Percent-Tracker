@@ -1,0 +1,57 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+DS-EventHook
+</name>
+</assembly>
+<members>
+<member name="T:DS_EventHook.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:DS_EventHook.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:DS_EventHook.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="P:DS_EventHook.My.Resources.Resources.NamedIDs">
+<summary>
+  Looks up a localized string similar to 2|Gaping Dragon
+3|Bell Gargoyles
+4|Priscilla
+5|Sif
+6|Pinwheel
+7|Nito
+9|Chaos Witch Quelaag
+10|Bed of Chaos
+11|Iron Golem
+12|Ornstein &amp; Smough
+13|4 Kings
+14|Seath
+15|Gwyn
+1000|Solaire at first position
+1004|Solaire is hostile
+1005|Solaire is dead
+11010100|Undead Burg ladder kicked
+11010901|Taurus Demon
+11010902|Capra Demon
+11200900|Moonlight Butterfly
+11210000|Sanctuary Guardian
+11210001|Artorias
+11210002|Manus
+11210004|Kalameet
+11410410|Demon Firesage
+11410900|Ceaseless Discharge
+1 [rest of string was truncated]&quot;;.
+</summary>
+</member>
+</members>
+</doc>

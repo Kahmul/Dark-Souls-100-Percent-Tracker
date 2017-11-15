@@ -1,0 +1,13 @@
+E:\git\DS-EventHook\bin\Debug\DS-EventHook.exe.config
+E:\git\DS-EventHook\bin\Debug\DS-EventHook.exe
+E:\git\DS-EventHook\obj\Debug\DS-EventHook.vbprojResolveAssemblyReference.cache
+E:\git\DS-EventHook\obj\Debug\DS_EventHook.Form1.resources
+E:\git\DS-EventHook\obj\Debug\DS_EventHook.Resources.resources
+E:\git\DS-EventHook\obj\Debug\DS_EventHook.UpdateWindow.resources
+E:\git\DS-EventHook\obj\Debug\DS-EventHook.vbproj.GenerateResource.Cache
+E:\git\DS-EventHook\obj\Debug\DS-EventHook.vbproj.CoreCompileInputs.cache
+E:\git\DS-EventHook\obj\Debug\DS-EventHook.exe
+E:\git\DS-EventHook\obj\Debug\DS-EventHook.xml
+E:\git\DS-EventHook\obj\Debug\DS-EventHook.pdb
+E:\git\DS-EventHook\bin\Debug\DS-EventHook.pdb
+E:\git\DS-EventHook\bin\Debug\DS-EventHook.xml
