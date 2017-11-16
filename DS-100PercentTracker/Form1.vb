@@ -26,6 +26,29 @@ Public Class Form1
         ByVal milliseconds As UInt32) As UInt32
     End Function
 
+    <DllImport("kernel32")>
+    Shared Function OpenThread(
+        ByVal dwDesiredAccess As Integer,
+        ByVal bInheritHandle As Boolean,
+        ByVal dwThreadId As UInt32) As IntPtr
+    End Function
+
+    <DllImport("kernel32")>
+    Shared Function SuspendThread(
+        ByVal hThread As IntPtr) As UInt32
+    End Function
+
+    <DllImport("kernel32")>
+    Shared Function ResumeThread(
+        ByVal hThread As IntPtr) As Int32
+    End Function
+
+    <DllImport("kernel32.dll")>
+    Shared Function FlushInstructionCache(
+        ByVal hProcess As IntPtr,
+        ByVal lpBaseAddress As IntPtr,
+        ByVal dwSize As UIntPtr) As Boolean
+    End Function
 
     Public Const PROCESS_VM_READ = &H10
     Public Const TH32CS_SNAPPROCESS = &H2
@@ -50,7 +73,7 @@ Public Class Form1
     Dim dbgHooks As Hashtable = New Hashtable
     Dim rlsHooks As Hashtable = New Hashtable
 
-    Private _targetProcess As Process = Nothing 'to keep track of it. not used yet.
+    Private _targetProcess As Process = Nothing 'to keep track of it. not used yet...or is it? :thinking:
     Private _targetProcessHandle As IntPtr = IntPtr.Zero 'Used for ReadProcessMemory
 
     Dim totalItemFlags As Array = {51000000, 51000010, 51000020, 51000030, 51000040, 51000050, 51000090, 51000100, 51000120, 51000140,
@@ -135,24 +158,27 @@ Public Class Form1
 
     Public Function ScanForProcess(ByVal windowCaption As String, Optional automatic As Boolean = False) As Boolean
         Dim _allProcesses() As Process = Process.GetProcesses
+        Dim selectedProcess As Process = Nothing
         For Each pp As Process In _allProcesses
             If pp.MainWindowTitle.ToLower.Equals(windowCaption.ToLower) Then
-                'found it! proceed.
-                Return TryAttachToProcess(pp, automatic)
+                selectedProcess = pp
+            Else
+                pp.Dispose()
             End If
         Next
+        If selectedProcess IsNot Nothing Then
+            Return TryAttachToProcess(selectedProcess, automatic)
+        End If
         Return False
     End Function
     Public Function TryAttachToProcess(ByVal proc As Process, Optional automatic As Boolean = False) As Boolean
-        If Not (_targetProcessHandle = IntPtr.Zero) Then
-            DetachFromProcess()
-        End If
+        DetachFromProcess()
 
         _targetProcess = proc
         _targetProcessHandle = OpenProcess(PROCESS_ALL_ACCESS, False, _targetProcess.Id)
         If _targetProcessHandle = 0 Then
             If Not automatic Then 'Showing 2 message boxes as soon as you start the program is too annoying.
-                MessageBox.Show("Failed to attach to process.Please run Dark Souls PC Gizmo with administrative privileges.")
+                MessageBox.Show("Failed to attach to process. Please rerun the application with administrative privileges.")
             End If
 
             Return False
@@ -164,7 +190,8 @@ Public Class Form1
 
     End Function
     Public Sub DetachFromProcess()
-        If Not (_targetProcessHandle = IntPtr.Zero) Then
+        If _targetProcessHandle <> IntPtr.Zero Then
+            _targetProcess.Dispose()
             _targetProcess = Nothing
             Try
                 CloseHandle(_targetProcessHandle)
@@ -262,7 +289,49 @@ Public Class Form1
         WriteProcessMemory(_targetProcessHandle, addr, val, val.Length, Nothing)
     End Sub
 
+    Private Sub SetDarkSoulsThreadSuspend(suspend As Boolean)
+
+        If _targetProcess Is Nothing Then Return
+
+        For Each pthread As ProcessThread In _targetProcess.Threads
+
+            Dim pOpenThread = OpenThread(&H2, False, pthread.Id)
+
+            If pOpenThread = 0 Then
+                Continue For
+            End If
+
+            If suspend Then
+                SuspendThread(pOpenThread)
+            Else
+                Dim suspendCount = 0
+                Do
+                    suspendCount = ResumeThread(pOpenThread)
+                Loop While suspendCount > 0
+            End If
+
+            CloseHandle(pOpenThread)
+        Next
+
+    End Sub
+
+    Private Sub SetHookButtonsEnabled(hookEnabled As Boolean, unhookEnabled As Boolean)
+        Invoke(
+            Sub()
+                btnHook.Enabled = hookEnabled
+                btnUnhook.Enabled = unhookEnabled
+            End Sub)
+    End Sub
+
     Private Sub btnHook_Click(sender As Object, e As EventArgs) Handles btnHook.Click
+
+        Dim newThread = New Thread(AddressOf HookInOtherThread) With {.IsBackground = True}
+        newThread.Start()
+
+    End Sub
+
+    Private Sub HookInOtherThread()
+        SetHookButtonsEnabled(False, False)
 
         If ScanForProcess("DARK SOULS", True) Then
             checkDarkSoulsVersion()
@@ -283,15 +352,20 @@ Public Class Form1
             igtTimer.Interval = 50
             igtTimer.Enabled = True
 
+            SetDarkSoulsThreadSuspend(True)
+
             initFlagHook1()
             initFlagHook2()
             initGetFlagFunc()
+
+            SetDarkSoulsThreadSuspend(False)
 
         Else
             MsgBox("Couldn't find the Dark Souls process!")
 
         End If
 
+        SetHookButtonsEnabled(False, True)
     End Sub
 
     Private Sub initFlagHook1()
@@ -329,7 +403,7 @@ Public Class Form1
         a.Asm("call " & hooks("hook1seteventflag").toint32())
         a.Asm("jmp hookreturn")
 
-        WriteProcessMemory(_targetProcessHandle, hook1mem, a.bytes, a.bytes.Length, 0)
+        WriteCodeAndFlushCache(_targetProcessHandle, hook1mem, a.bytes, a.bytes.Length, 0)
 
 
         a.Clear()
@@ -337,7 +411,7 @@ Public Class Form1
         a.pos = hooks("hook1").toint32()
         a.Asm("jmp newmem")
 
-        WriteProcessMemory(_targetProcessHandle, hooks("hook1"), a.bytes, a.bytes.Length, 0)
+        WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), a.bytes, a.bytes.Length, 0)
     End Sub
     Private Sub initFlagHook2()
         hook2mem = VirtualAllocEx(_targetProcessHandle, 0, &H8000, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
@@ -379,7 +453,7 @@ Public Class Form1
 
 
 
-        WriteProcessMemory(_targetProcessHandle, hook2mem, a.bytes, a.bytes.Length, 0)
+        WriteCodeAndFlushCache(_targetProcessHandle, hook2mem, a.bytes, a.bytes.Length, 0)
 
 
         a.Clear()
@@ -387,7 +461,7 @@ Public Class Form1
         a.pos = hooks("hook2").toint32()
         a.Asm("jmp newmem")
 
-        WriteProcessMemory(_targetProcessHandle, hooks("hook2"), a.bytes, a.bytes.Length, 0)
+        WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook2"), a.bytes, a.bytes.Length, 0)
 
     End Sub
     Private Sub initGetFlagFunc()
@@ -415,7 +489,7 @@ Public Class Form1
         a.Asm("popad")
         a.Asm("ret")
 
-        WriteProcessMemory(_targetProcessHandle, getflagfuncmem, a.bytes, a.bytes.Length, 0)
+        WriteCodeAndFlushCache(_targetProcessHandle, getflagfuncmem, a.bytes, a.bytes.Length, 0)
     End Sub
 
     Function GetIngameTimeInMilliseconds() As Integer
@@ -638,7 +712,21 @@ Public Class Form1
 
     End Sub
 
+    Private Function WriteCodeAndFlushCache(ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByVal lpNumberOfBytesWritten As Integer) As Boolean
+
+        Dim result = WriteProcessMemory(hProcess, lpBaseAddress, lpBuffer, iSize, lpNumberOfBytesWritten)
+        If Not FlushInstructionCache(hProcess, lpBaseAddress, iSize) Then
+            unhook()
+            Throw New Exception("Flush Instruction Cache Failed")
+        End If
+
+        Return result
+    End Function
+
     Private Sub unhook()
+
+        SetDarkSoulsThreadSuspend(True)
+
         isHooked = False
         refTimer.Stop()
         igtTimer.Stop()
@@ -651,26 +739,43 @@ Public Class Form1
 
         If exeVER = "Release" Then
             tmpbytes = {&HE8, &HC1, &H6F, &H17, 0}
-            WriteProcessMemory(_targetProcessHandle, hooks("hook1"), tmpbytes, 5, 0)
+            WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), tmpbytes, 5, 0)
+
 
             tmpbytes = {&HBA, 1, 0, 0, 0}
-            WriteProcessMemory(_targetProcessHandle, hooks("hook2"), tmpbytes, 5, 0)
+            WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook2"), tmpbytes, 5, 0)
         End If
         If exeVER = "Debug" Then
             tmpbytes = {&HE8, &H71, &H7E, &H17, 0}
-            WriteProcessMemory(_targetProcessHandle, hooks("hook1"), tmpbytes, 5, 0)
+            WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), tmpbytes, 5, 0)
+
+
 
             tmpbytes = {&HBA, 1, 0, 0, 0}
-            WriteProcessMemory(_targetProcessHandle, hooks("hook2"), tmpbytes, 5, 0)
+            WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook2"), tmpbytes, 5, 0)
         End If
 
+        SetDarkSoulsThreadSuspend(False)
+
+        DetachFromProcess()
+
     End Sub
+
     Private Sub btnUnhook_Click(sender As Object, e As EventArgs) Handles btnUnhook.Click
+
+        Dim newThread = New Thread(AddressOf DoUnhookInOtherThread) With {.IsBackground = True}
+        newThread.Start()
+
+    End Sub
+
+    Private Sub DoUnhookInOtherThread()
+        SetHookButtonsEnabled(False, False)
         unhook()
+        SetHookButtonsEnabled(True, False)
     End Sub
 
     Private Sub Form1_exit(sender As Object, e As EventArgs) Handles MyBase.Closing
-        If isHooked Then unhook()
+        unhook()
     End Sub
 
     Private Function GetEventFlagState(eventID As Integer) As Boolean
@@ -695,7 +800,6 @@ Public Class Form1
         If ptr = 0 Then Return PlayerStartingClass.None
         Return CType(RBytes(ptr + &HC6, 1)(0), PlayerStartingClass)
     End Function
-
 
     Private Sub Label2_Click(sender As Object, e As EventArgs) Handles BossFlagsLabel.Click
 
