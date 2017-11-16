@@ -62,7 +62,6 @@ Public Class Form1
     Dim exeVER As String = ""
 
     Dim hook1mem As IntPtr
-    Dim hook2mem As IntPtr
     Dim getflagfuncmem As IntPtr
     Dim setflagfuncmem As IntPtr
 
@@ -343,8 +342,7 @@ Public Class Form1
 
             SetDarkSoulsThreadSuspend(True)
 
-            initFlagHook1()
-            initFlagHook2()
+            initFlagHook()
             initGetFlagFunc()
 
             SetDarkSoulsThreadSuspend(False)
@@ -366,7 +364,7 @@ Public Class Form1
         SetHookButtonsEnabled(False, True)
     End Sub
 
-    Private Sub initFlagHook1()
+    Private Sub initFlagHook()
         hook1mem = VirtualAllocEx(_targetProcessHandle, 0, &H8000, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
         Dim oldProtectionOut As UInteger
         VirtualProtectEx(_targetProcessHandle, hook1mem, &H8000, PAGE_EXECUTE_READWRITE, oldProtectionOut)
@@ -403,7 +401,6 @@ Public Class Form1
 
         WriteCodeAndFlushCache(_targetProcessHandle, hook1mem, a.bytes, a.bytes.Length, 0)
 
-
         a.Clear()
         a.AddVar("newmem", hook1mem)
         a.pos = hooks("hook1").toint32()
@@ -411,57 +408,7 @@ Public Class Form1
 
         WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), a.bytes, a.bytes.Length, 0)
     End Sub
-    Private Sub initFlagHook2()
-        hook2mem = VirtualAllocEx(_targetProcessHandle, 0, &H8000, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
-        Dim oldProtectionOut As UInteger
-        VirtualProtectEx(_targetProcessHandle, hook2mem, &H8000, PAGE_EXECUTE_READWRITE, oldProtectionOut)
 
-        Dim a As New asm
-
-        a.AddVar("hook", hooks("hook2"))
-        a.AddVar("newmem", hook2mem)
-        a.AddVar("vardump", hook2mem + &H400)
-        a.AddVar("hookreturn", hooks("hook2return"))
-        a.AddVar("startloop", 0)
-        a.AddVar("exitloop", 0)
-
-        a.pos = hook2mem
-        a.Asm("pushad")
-        a.Asm("mov eax, vardump")
-        '
-        a.Asm("startloop:")
-        a.Asm("mov edx, [eax]")
-        a.Asm("cmp edx, 0")
-        a.Asm("je exitloop")
-        '
-        a.Asm("add eax, 0x8")
-        a.Asm("jmp startloop")
-        '
-        a.Asm("exitloop:")
-        a.Asm("mov edx, [ebx-0x8]")
-        a.Asm("mov [eax], edx")
-        a.Asm("add eax, 4")
-        a.Asm("mov edx, [ebx-0x4]")
-        a.Asm("mov [eax], edx")
-
-        a.Asm("popad")
-        a.Asm("mov edx, 1")
-        a.Asm("jmp hookreturn")
-
-
-
-
-        WriteCodeAndFlushCache(_targetProcessHandle, hook2mem, a.bytes, a.bytes.Length, 0)
-
-
-        a.Clear()
-        a.AddVar("newmem", hook2mem)
-        a.pos = hooks("hook2").toint32()
-        a.Asm("jmp newmem")
-
-        WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook2"), a.bytes, a.bytes.Length, 0)
-
-    End Sub
     Private Sub initGetFlagFunc()
         getflagfuncmem = VirtualAllocEx(_targetProcessHandle, 0, &H8000, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
         Dim oldProtectionOut As UInteger
@@ -707,20 +654,12 @@ Public Class Form1
         rlsHooks.Add("hook1", New IntPtr(&HBC1CEA))
         rlsHooks.Add("hook1return", New IntPtr(&HBC1CEF))
         rlsHooks.Add("hook1seteventflag", New IntPtr(&HD38CB0))
-        rlsHooks.Add("hook2", New IntPtr(&HBBEF0F))
-        rlsHooks.Add("hook2return", New IntPtr(&HBBEF14))
-        rlsHooks.Add("seteventflag", New IntPtr(&HD60190))
 
 
         dbgHooks.Add("geteventflagvalue", New IntPtr(&HD618D0))
         dbgHooks.Add("hook1", New IntPtr(&HBC23CA))
         dbgHooks.Add("hook1return", New IntPtr(&HBC23CF))
         dbgHooks.Add("hook1seteventflag", New IntPtr(&HD3A240))
-        dbgHooks.Add("hook2", New IntPtr(&HBBF5EF))
-        dbgHooks.Add("hook2return", New IntPtr(&HBBF5F4))
-        dbgHooks.Add("seteventflag", New IntPtr(&HD61720))
-
-
 
     End Sub
 
@@ -746,28 +685,17 @@ Public Class Form1
         RemoveHandler refTimer.Tick, refTimerTickEventHandler
 
         VirtualFreeEx(_targetProcessHandle, hook1mem, 0, MEM_RELEASE)
-        VirtualFreeEx(_targetProcessHandle, hook2mem, 0, MEM_RELEASE)
         VirtualFreeEx(_targetProcessHandle, getflagfuncmem, 0, MEM_RELEASE)
-        VirtualFreeEx(_targetProcessHandle, setflagfuncmem, 0, MEM_RELEASE)
 
         Dim tmpbytes() As Byte = {}
 
         If exeVER = "Release" Then
             tmpbytes = {&HE8, &HC1, &H6F, &H17, 0}
             WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), tmpbytes, 5, 0)
-
-
-            tmpbytes = {&HBA, 1, 0, 0, 0}
-            WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook2"), tmpbytes, 5, 0)
         End If
         If exeVER = "Debug" Then
             tmpbytes = {&HE8, &H71, &H7E, &H17, 0}
             WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), tmpbytes, 5, 0)
-
-
-
-            tmpbytes = {&HBA, 1, 0, 0, 0}
-            WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook2"), tmpbytes, 5, 0)
         End If
 
         SetDarkSoulsThreadSuspend(False)
@@ -816,7 +744,7 @@ Public Class Form1
         Return CType(RBytes(ptr + &HC6, 1)(0), PlayerStartingClass)
     End Function
 
-    Private Sub Label2_Click(sender As Object, e As EventArgs) Handles BossFlagsLabel.Click
+    Private Sub Label2_Click(sender As Object, e As EventArgs)
 
     End Sub
 
@@ -833,6 +761,10 @@ Public Class Form1
     End Sub
 
     Private Sub Label13_Click(sender As Object, e As EventArgs) Handles treasureLocationsValueLabel.Click
+
+    End Sub
+
+    Private Sub Label1_Click_1(sender As Object, e As EventArgs) Handles Label1.Click
 
     End Sub
 End Class

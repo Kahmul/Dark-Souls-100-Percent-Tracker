@@ -25,7 +25,6 @@ Partial Class Form1
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.btnHook = New System.Windows.Forms.Button()
         Me.btnUnhook = New System.Windows.Forms.Button()
-        Me.BossFlagsLabel = New System.Windows.Forms.Label()
         Me.treasureLocationsLabel = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.percentageLabel = New System.Windows.Forms.Label()
@@ -40,13 +39,14 @@ Partial Class Form1
         Me.foggatesValueLabel = New System.Windows.Forms.Label()
         Me.shortcutsValueLabel = New System.Windows.Forms.Label()
         Me.bossesKilledValueLabel = New System.Windows.Forms.Label()
+        Me.Label1 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'btnHook
         '
         Me.btnHook.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.btnHook.FlatStyle = System.Windows.Forms.FlatStyle.System
-        Me.btnHook.Location = New System.Drawing.Point(16, 305)
+        Me.btnHook.Location = New System.Drawing.Point(16, 272)
         Me.btnHook.Name = "btnHook"
         Me.btnHook.Size = New System.Drawing.Size(75, 23)
         Me.btnHook.TabIndex = 0
@@ -58,24 +58,12 @@ Partial Class Form1
         Me.btnUnhook.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.btnUnhook.Enabled = False
         Me.btnUnhook.FlatStyle = System.Windows.Forms.FlatStyle.System
-        Me.btnUnhook.Location = New System.Drawing.Point(97, 305)
+        Me.btnUnhook.Location = New System.Drawing.Point(97, 272)
         Me.btnUnhook.Name = "btnUnhook"
         Me.btnUnhook.Size = New System.Drawing.Size(75, 23)
         Me.btnUnhook.TabIndex = 4
         Me.btnUnhook.Text = "Unhook"
         Me.btnUnhook.UseVisualStyleBackColor = True
-        '
-        'BossFlagsLabel
-        '
-        Me.BossFlagsLabel.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.BossFlagsLabel.AutoSize = True
-        Me.BossFlagsLabel.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.BossFlagsLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.BossFlagsLabel.Location = New System.Drawing.Point(13, 54)
-        Me.BossFlagsLabel.Name = "BossFlagsLabel"
-        Me.BossFlagsLabel.Size = New System.Drawing.Size(53, 17)
-        Me.BossFlagsLabel.TabIndex = 10
-        Me.BossFlagsLabel.Text = "Bosses:"
         '
         'treasureLocationsLabel
         '
@@ -104,7 +92,7 @@ Partial Class Form1
         Me.percentageLabel.AutoSize = True
         Me.percentageLabel.Font = New System.Drawing.Font("Calibri", 30.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.percentageLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.percentageLabel.Location = New System.Drawing.Point(332, 92)
+        Me.percentageLabel.Location = New System.Drawing.Point(273, 86)
         Me.percentageLabel.Name = "percentageLabel"
         Me.percentageLabel.Size = New System.Drawing.Size(71, 49)
         Me.percentageLabel.TabIndex = 13
@@ -231,12 +219,24 @@ Partial Class Form1
         Me.bossesKilledValueLabel.TabIndex = 30
         Me.bossesKilledValueLabel.Text = "X / X"
         '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.ForeColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.Label1.Location = New System.Drawing.Point(13, 54)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(53, 17)
+        Me.Label1.TabIndex = 31
+        Me.Label1.Text = "Bosses:"
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.ActiveCaptionText
-        Me.ClientSize = New System.Drawing.Size(515, 335)
+        Me.ClientSize = New System.Drawing.Size(459, 302)
+        Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.bossesKilledValueLabel)
         Me.Controls.Add(Me.shortcutsValueLabel)
         Me.Controls.Add(Me.foggatesValueLabel)
@@ -253,7 +253,6 @@ Partial Class Form1
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.btnHook)
         Me.Controls.Add(Me.treasureLocationsLabel)
-        Me.Controls.Add(Me.BossFlagsLabel)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
@@ -266,7 +265,6 @@ Partial Class Form1
 
     Friend WithEvents btnHook As Button
     Friend WithEvents btnUnhook As Button
-    Friend WithEvents BossFlagsLabel As Label
     Friend WithEvents percentageLabel As Label
     Friend WithEvents Label2 As Label
     Friend WithEvents treasureLocationsLabel As Label
@@ -281,4 +279,5 @@ Partial Class Form1
     Friend WithEvents foggatesValueLabel As Label
     Friend WithEvents shortcutsValueLabel As Label
     Friend WithEvents bossesKilledValueLabel As Label
+    Friend WithEvents Label1 As Label
 End Class
