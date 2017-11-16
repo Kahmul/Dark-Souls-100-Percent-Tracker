@@ -8,7 +8,6 @@ Public Class Form1
     Shared Version As String
 
     Private WithEvents refTimer As New System.Windows.Forms.Timer()
-    Private WithEvents igtTimer As New System.Windows.Forms.Timer()
 
     Dim isPlayerInGame As Boolean
 
@@ -204,11 +203,12 @@ Public Class Form1
     End Sub
 
     Private Sub checkDarkSoulsVersion()
-        If (RUInt32(&H400080) = &HCE9634B4&) Then
+        Dim versionFlag = RUInt32(&H400080)
+        If (versionFlag = &HCE9634B4&) Then
             exeVER = "Debug"
-        ElseIf (RUInt32(&H400080) = &HE91B11E2&) Then
+        ElseIf (versionFlag = &HE91B11E2&) Then
             exeVER = "Beta"
-        ElseIf (RUInt32(&H400080) = &HFC293654&) Then
+        ElseIf (versionFlag = &HFC293654&) Then
             exeVER = "Release"
         Else
             exeVER = "Unknown"
@@ -343,15 +343,6 @@ Public Class Form1
             If exeVER = "Release" Then hooks = rlsHooks
             If exeVER = "Debug" Then hooks = dbgHooks
 
-
-            refTimer = New System.Windows.Forms.Timer
-            refTimer.Interval = 1000
-            refTimer.Enabled = True
-
-            igtTimer = New System.Windows.Forms.Timer
-            igtTimer.Interval = 50
-            igtTimer.Enabled = True
-
             SetDarkSoulsThreadSuspend(True)
 
             initFlagHook1()
@@ -359,6 +350,15 @@ Public Class Form1
             initGetFlagFunc()
 
             SetDarkSoulsThreadSuspend(False)
+
+            Invoke(
+                Sub()
+                    refTimer = New System.Windows.Forms.Timer
+                    refTimer.Interval = 1000
+                    AddHandler refTimer.Tick, AddressOf refTimer_Tick
+                    refTimer.Start()
+                End Sub)
+
 
         Else
             MsgBox("Couldn't find the Dark Souls process!")
@@ -500,21 +500,18 @@ Public Class Form1
         End If
     End Function
 
-    Dim prevIGT As Long
-
-    Private Sub igtTimer_Tick() Handles igtTimer.Tick
-        Dim currentIGT = GetIngameTimeInMilliseconds()
-        'If the IGT doesn't change then that means either loadscreen or main menu
-        isPlayerInGame = currentIGT <> prevIGT And currentIGT <> 0
-        prevIGT = currentIGT
-    End Sub
-
-
-    Private Sub refTimer_Tick() Handles refTimer.Tick
+    Private Sub refTimer_Tick()
 
         ' Timer running at an interval of 1000ms. Checks all the flags defined at the top
 
-        If IsPlayerLoaded() = False Or isPlayerInGame = False Then
+        If IsPlayerLoaded() = False Then
+            Return
+        End If
+
+        Dim currentIGT = GetIngameTimeInMilliseconds()
+        Thread.Sleep(50)
+        Dim nextIGT = GetIngameTimeInMilliseconds()
+        If nextIGT = currentIGT Then
             Return
         End If
 
@@ -728,10 +725,13 @@ Public Class Form1
         SetDarkSoulsThreadSuspend(True)
 
         isHooked = False
+
         refTimer.Stop()
-        igtTimer.Stop()
+        Dim refTimerTickEventHandler As New EventHandler(AddressOf refTimer_Tick)
+        RemoveHandler refTimer.Tick, refTimerTickEventHandler
 
         VirtualFreeEx(_targetProcessHandle, hook1mem, 0, MEM_RELEASE)
+        VirtualFreeEx(_targetProcessHandle, hook2mem, 0, MEM_RELEASE)
         VirtualFreeEx(_targetProcessHandle, getflagfuncmem, 0, MEM_RELEASE)
         VirtualFreeEx(_targetProcessHandle, setflagfuncmem, 0, MEM_RELEASE)
 
