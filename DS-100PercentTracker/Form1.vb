@@ -9,8 +9,6 @@ Public Class Form1
 
     Private WithEvents refTimer As New System.Windows.Forms.Timer()
 
-    Dim isPlayerInGame As Boolean
-
     Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAcess As UInt32, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Int32) As IntPtr
     Private Declare Function ReadProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
     Private Declare Function WriteProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByVal lpNumberOfBytesWritten As Integer) As Boolean
@@ -153,7 +151,7 @@ Public Class Form1
                                             11210201, 11210346, 11210025}
 
     Dim totalFoggatesFlags As Array = {11510090, 11510091, 11810090, 11010090, 11300090, 11310090, 11400091, 11500090, 11500091, 11010091,
-                                        11320090, 11000090, 11200090, 11700083, 11100091}
+                                        11320090, 11000090, 11200090, 11700083, 11100091, 11600090}
 
     Public Function ScanForProcess(ByVal windowCaption As String, Optional automatic As Boolean = False) As Boolean
         Dim _allProcesses() As Process = Process.GetProcesses
@@ -671,8 +669,11 @@ Public Class Form1
         percentage = Math.Floor(percentage * 100)
 
         'Before updating, check if the player is in a loadscreen to make sure all flags have been accounted for
-        If IsPlayerLoaded() = False And isPlayerInGame = False Then
-            refTimer.Start()
+        If IsPlayerLoaded() = False Then
+            Invoke(
+            Sub()
+                refTimer.Start()
+            End Sub)
             Return
         End If
 
