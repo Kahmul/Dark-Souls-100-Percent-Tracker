@@ -502,6 +502,12 @@ Public Class Form1
 
     Private Sub refTimer_Tick()
 
+        Dim newThread As New Thread(AddressOf CheckAllEventFlags) With {.IsBackground = True}
+        newThread.Start()
+
+    End Sub
+
+    Private Sub CheckAllEventFlags()
         ' Timer running at an interval of 1000ms. Checks all the flags defined at the top
 
         If IsPlayerLoaded() = False Then
@@ -515,7 +521,10 @@ Public Class Form1
             Return
         End If
 
-        refTimer.Stop()
+        Invoke(
+            Sub()
+                refTimer.Stop()
+            End Sub)
 
         Dim item As Integer
         Dim value As Boolean
@@ -667,17 +676,22 @@ Public Class Form1
             Return
         End If
 
-        treasureLocationsValueLabel.Text = Convert.ToString(itemsPickedUp) + " / " + Convert.ToString(totalItemsCount)
-        bossesKilledValueLabel.Text = Convert.ToString(bossesKilled) + " / " + Convert.ToString(totalBossFlags.Length)
-        nonRespawningEnemiesValueLabel.Text = Convert.ToString(nonRespawningEnemiesKilled) + " / " + Convert.ToString(totalNonRespawningEnemiesFlags.Length)
-        npcQuestlinesValueLabel.Text = Convert.ToString(npcQuestlinesCompleted) + " / " + Convert.ToString(totalNPCQuestlineFlags.Length)
-        shortcutsValueLabel.Text = Convert.ToString(shortcutsLockedDoorsUnlocked) + " / " + Convert.ToString(totalShortcutsLockedDoorsFlags.Length)
-        illusoryWallsValueLabel.Text = Convert.ToString(illusoryWallsRevealed) + " / " + Convert.ToString(totalIllusoryWallsFlags.Length)
-        foggatesValueLabel.Text = Convert.ToString(foggatesDissolved) + " / " + Convert.ToString(totalFoggatesFlags.Length)
 
-        percentageLabel.Text = Convert.ToString(percentage) + "%"
 
-        refTimer.Start()
+        Invoke(
+            Sub()
+                treasureLocationsValueLabel.Text = Convert.ToString(itemsPickedUp) + " / " + Convert.ToString(totalItemsCount)
+                bossesKilledValueLabel.Text = Convert.ToString(bossesKilled) + " / " + Convert.ToString(totalBossFlags.Length)
+                nonRespawningEnemiesValueLabel.Text = Convert.ToString(nonRespawningEnemiesKilled) + " / " + Convert.ToString(totalNonRespawningEnemiesFlags.Length)
+                npcQuestlinesValueLabel.Text = Convert.ToString(npcQuestlinesCompleted) + " / " + Convert.ToString(totalNPCQuestlineFlags.Length)
+                shortcutsValueLabel.Text = Convert.ToString(shortcutsLockedDoorsUnlocked) + " / " + Convert.ToString(totalShortcutsLockedDoorsFlags.Length)
+                illusoryWallsValueLabel.Text = Convert.ToString(illusoryWallsRevealed) + " / " + Convert.ToString(totalIllusoryWallsFlags.Length)
+                foggatesValueLabel.Text = Convert.ToString(foggatesDissolved) + " / " + Convert.ToString(totalFoggatesFlags.Length)
+
+                percentageLabel.Text = Convert.ToString(percentage) + "%"
+
+                refTimer.Start()
+            End Sub)
     End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
