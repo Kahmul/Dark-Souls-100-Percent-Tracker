@@ -659,13 +659,13 @@ Public Class Form1
 
         Dim percentage As Double
 
-        Dim itemPercentage As Double = itemsPickedUp * (0.25 / Convert.ToDouble(totalItemsCount))
-        Dim bossPercentage As Double = bossesKilled * (0.25 / 26.0)
-        Dim nonrespawningPercentage As Double = nonRespawningEnemiesKilled * (0.15 / Convert.ToDouble(totalNonRespawningEnemiesFlags.Length))
-        Dim questlinesPercentage As Double = npcQuestlinesCompleted * (0.2 / Convert.ToDouble(totalNPCQuestlineFlags.Length))
-        Dim shortcutsLockedDoorsPercentage As Double = shortcutsLockedDoorsUnlocked * (0.1 / Convert.ToDouble(totalShortcutsLockedDoorsFlags.Length))
-        Dim illusoryWallsPercentage As Double = illusoryWallsRevealed * (0.025 / Convert.ToDouble(totalIllusoryWallsFlags.Length))
-        Dim foggatesPercentage As Double = foggatesDissolved * (0.025 / Convert.ToDouble(totalFoggatesFlags.Length))
+        Dim itemPercentage As Double = itemsPickedUp * (0.25 / totalItemsCount)
+        Dim bossPercentage As Double = bossesKilled * (0.25 / totalBossFlags.Length)
+        Dim nonrespawningPercentage As Double = nonRespawningEnemiesKilled * (0.15 / totalNonRespawningEnemiesFlags.Length)
+        Dim questlinesPercentage As Double = npcQuestlinesCompleted * (0.2 / totalNPCQuestlineFlags.Length)
+        Dim shortcutsLockedDoorsPercentage As Double = shortcutsLockedDoorsUnlocked * (0.1 / totalShortcutsLockedDoorsFlags.Length)
+        Dim illusoryWallsPercentage As Double = illusoryWallsRevealed * (0.025 / totalIllusoryWallsFlags.Length)
+        Dim foggatesPercentage As Double = foggatesDissolved * (0.025 / totalFoggatesFlags.Length)
 
         percentage = itemPercentage + bossPercentage + nonrespawningPercentage + questlinesPercentage + shortcutsLockedDoorsPercentage + illusoryWallsPercentage + foggatesPercentage
         percentage = Math.Floor(percentage * 100)
@@ -680,15 +680,15 @@ Public Class Form1
 
         Invoke(
             Sub()
-                treasureLocationsValueLabel.Text = Convert.ToString(itemsPickedUp) + " / " + Convert.ToString(totalItemsCount)
-                bossesKilledValueLabel.Text = Convert.ToString(bossesKilled) + " / " + Convert.ToString(totalBossFlags.Length)
-                nonRespawningEnemiesValueLabel.Text = Convert.ToString(nonRespawningEnemiesKilled) + " / " + Convert.ToString(totalNonRespawningEnemiesFlags.Length)
-                npcQuestlinesValueLabel.Text = Convert.ToString(npcQuestlinesCompleted) + " / " + Convert.ToString(totalNPCQuestlineFlags.Length)
-                shortcutsValueLabel.Text = Convert.ToString(shortcutsLockedDoorsUnlocked) + " / " + Convert.ToString(totalShortcutsLockedDoorsFlags.Length)
-                illusoryWallsValueLabel.Text = Convert.ToString(illusoryWallsRevealed) + " / " + Convert.ToString(totalIllusoryWallsFlags.Length)
-                foggatesValueLabel.Text = Convert.ToString(foggatesDissolved) + " / " + Convert.ToString(totalFoggatesFlags.Length)
+                treasureLocationsValueLabel.Text = $"{itemsPickedUp} / {totalItemsCount}"
+                bossesKilledValueLabel.Text = $"{bossesKilled} / {totalBossFlags.Length}"
+                nonRespawningEnemiesValueLabel.Text = $"{nonRespawningEnemiesKilled} / {totalNonRespawningEnemiesFlags.Length}"
+                npcQuestlinesValueLabel.Text = $"{npcQuestlinesCompleted} / {totalNPCQuestlineFlags.Length}"
+                shortcutsValueLabel.Text = $"{shortcutsLockedDoorsUnlocked} / {totalShortcutsLockedDoorsFlags.Length}"
+                illusoryWallsValueLabel.Text = $"{illusoryWallsRevealed} / {totalIllusoryWallsFlags.Length}"
+                foggatesValueLabel.Text = $"{foggatesDissolved} / {totalFoggatesFlags.Length}"
 
-                percentageLabel.Text = Convert.ToString(percentage) + "%"
+                percentageLabel.Text = $"{percentage}%"
 
                 refTimer.Start()
             End Sub)
