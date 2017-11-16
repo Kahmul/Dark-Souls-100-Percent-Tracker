@@ -45,6 +45,7 @@ Partial Class Form1
         'btnHook
         '
         Me.btnHook.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnHook.FlatStyle = System.Windows.Forms.FlatStyle.System
         Me.btnHook.Location = New System.Drawing.Point(16, 305)
         Me.btnHook.Name = "btnHook"
         Me.btnHook.Size = New System.Drawing.Size(75, 23)
@@ -55,6 +56,8 @@ Partial Class Form1
         'btnUnhook
         '
         Me.btnUnhook.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnUnhook.Enabled = False
+        Me.btnUnhook.FlatStyle = System.Windows.Forms.FlatStyle.System
         Me.btnUnhook.Location = New System.Drawing.Point(97, 305)
         Me.btnUnhook.Name = "btnUnhook"
         Me.btnUnhook.Size = New System.Drawing.Size(75, 23)
