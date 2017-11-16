@@ -1,36 +1,12 @@
-E:\git\DS-EventHook\bin\Debug\Dark Souls 100% Tracker.exe.config
-E:\git\DS-EventHook\bin\Debug\Dark Souls 100% Tracker.exe
-E:\git\DS-EventHook\bin\Debug\Dark Souls 100% Tracker.pdb
-E:\git\DS-EventHook\bin\Debug\Dark Souls 100% Tracker.xml
-E:\git\DS-EventHook\obj\Debug\DS_100PercentTracker.Form1.resources
-E:\git\DS-EventHook\obj\Debug\DS_100PercentTracker.Resources.resources
-E:\git\DS-EventHook\obj\Debug\DarkSouls-100PercentTracker.vbproj.GenerateResource.Cache
-E:\git\DS-EventHook\obj\Debug\DarkSouls-100PercentTracker.vbproj.CoreCompileInputs.cache
-E:\git\DS-EventHook\obj\Debug\Dark Souls 100% Tracker.exe
-E:\git\DS-EventHook\obj\Debug\Dark Souls 100% Tracker.xml
-E:\git\DS-EventHook\obj\Debug\Dark Souls 100% Tracker.pdb
-E:\git\DS-EventHook\obj\Debug\DarkSouls-100PercentTracker.vbprojResolveAssemblyReference.cache
-E:\git\DS-100PercentTracker\bin\Debug\Dark Souls 100% Tracker.exe.config
-E:\git\DS-100PercentTracker\bin\Debug\Dark Souls 100% Tracker.exe
-E:\git\DS-100PercentTracker\bin\Debug\Dark Souls 100% Tracker.pdb
-E:\git\DS-100PercentTracker\bin\Debug\Dark Souls 100% Tracker.xml
+E:\git\DS-100PercentTracker\bin\Debug\Dark Souls 100 Percent Tracker.exe.config
+E:\git\DS-100PercentTracker\bin\Debug\Dark Souls 100 Percent Tracker.exe
+E:\git\DS-100PercentTracker\bin\Debug\Dark Souls 100 Percent Tracker.pdb
+E:\git\DS-100PercentTracker\bin\Debug\Dark Souls 100 Percent Tracker.xml
 E:\git\DS-100PercentTracker\obj\Debug\DarkSouls-100PercentTracker.vbprojResolveAssemblyReference.cache
 E:\git\DS-100PercentTracker\obj\Debug\DS_100PercentTracker.Form1.resources
 E:\git\DS-100PercentTracker\obj\Debug\DS_100PercentTracker.Resources.resources
 E:\git\DS-100PercentTracker\obj\Debug\DarkSouls-100PercentTracker.vbproj.GenerateResource.Cache
 E:\git\DS-100PercentTracker\obj\Debug\DarkSouls-100PercentTracker.vbproj.CoreCompileInputs.cache
-E:\git\DS-100PercentTracker\obj\Debug\Dark Souls 100% Tracker.exe
-E:\git\DS-100PercentTracker\obj\Debug\Dark Souls 100% Tracker.xml
-E:\git\DS-100PercentTracker\obj\Debug\Dark Souls 100% Tracker.pdb
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\bin\Debug\Dark Souls 100% Tracker.exe.config
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\bin\Debug\Dark Souls 100% Tracker.exe
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\bin\Debug\Dark Souls 100% Tracker.pdb
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\bin\Debug\Dark Souls 100% Tracker.xml
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\obj\Debug\DarkSouls-100PercentTracker.vbprojResolveAssemblyReference.cache
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\obj\Debug\DS_100PercentTracker.Form1.resources
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\obj\Debug\DS_100PercentTracker.Resources.resources
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\obj\Debug\DarkSouls-100PercentTracker.vbproj.GenerateResource.Cache
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\obj\Debug\DarkSouls-100PercentTracker.vbproj.CoreCompileInputs.cache
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\obj\Debug\Dark Souls 100% Tracker.exe
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\obj\Debug\Dark Souls 100% Tracker.xml
-C:\Users\Green\GitHub\Dark-Souls-100-Percent-Tracker\DS-100PercentTracker\obj\Debug\Dark Souls 100% Tracker.pdb
+E:\git\DS-100PercentTracker\obj\Debug\Dark Souls 100 Percent Tracker.exe
+E:\git\DS-100PercentTracker\obj\Debug\Dark Souls 100 Percent Tracker.xml
+E:\git\DS-100PercentTracker\obj\Debug\Dark Souls 100 Percent Tracker.pdb
