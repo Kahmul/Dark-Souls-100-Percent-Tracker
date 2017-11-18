@@ -3,7 +3,7 @@ Imports System.Reflection
 Imports System.Runtime.InteropServices
 Imports System.Threading
 
-Public Class Form1
+Public Class Main
 
     Shared Version As String
 
@@ -437,14 +437,6 @@ Public Class Form1
         WriteCodeAndFlushCache(_targetProcessHandle, getflagfuncmem, a.bytes, a.bytes.Length, 0)
     End Sub
 
-    Function GetIngameTimeInMilliseconds() As Integer
-        If exeVER = "Debug" Then
-            Return RInt32(RInt32(&H137C8C0) + &H68)
-        Else
-            Return RInt32(RInt32(&H1378700) + &H68)
-        End If
-    End Function
-
     Private Sub refTimer_Tick()
 
         Dim newThread As New Thread(AddressOf CheckAllEventFlags) With {.IsBackground = True}
@@ -459,6 +451,13 @@ Public Class Form1
             Return
         End If
 
+        'Return if the player is not in his own world
+        Dim chrType = GetPlayerCharacterType()
+        If chrType <> PlayerCharacterType.Hollow And chrType <> PlayerCharacterType.Human Then
+            Return
+        End If
+
+        'If the IGT doesn't change, then the player entered a loading screen or is in the main menu
         Dim currentIGT = GetIngameTimeInMilliseconds()
         Thread.Sleep(50)
         Dim nextIGT = GetIngameTimeInMilliseconds()
@@ -541,15 +540,13 @@ Public Class Form1
             'Check if NPC-dead flag is true
             value = GetEventFlagState(pair.Key)
             If value = True Then
-                additionalNPCItemsCount += pair.Value.Length
-                For Each item In pair.Value
-                    value = GetEventFlagState(item)
-
-                    If value = True Then
-                        itemsPickedUp += 1
-                    End If
-                Next
-
+                'If NPC is dead, add his treasure location to required total and check whether the last item has been picked up
+                additionalNPCItemsCount += 1
+                item = pair.Value(pair.Value.Length - 1)
+                value = GetEventFlagState(item)
+                If value = True Then
+                    itemsPickedUp += 1
+                End If
             End If
         Next
 
@@ -742,6 +739,20 @@ Public Class Form1
         ptr = RInt32(ptr + 8)
         If ptr = 0 Then Return PlayerStartingClass.None
         Return CType(RBytes(ptr + &HC6, 1)(0), PlayerStartingClass)
+    End Function
+
+    Private Function GetPlayerCharacterType() As PlayerCharacterType
+        Dim ptr = If(exeVER = "Debug", RInt32(&H13823C4), RInt32(&H137E204))
+        If ptr = 0 Then Return -1
+        Return CType(RInt32(ptr + &HA28), PlayerCharacterType)
+    End Function
+
+    Function GetIngameTimeInMilliseconds() As Integer
+        If exeVER = "Debug" Then
+            Return RInt32(RInt32(&H137C8C0) + &H68)
+        Else
+            Return RInt32(RInt32(&H1378700) + &H68)
+        End If
     End Function
 
     Private Sub Label2_Click(sender As Object, e As EventArgs)

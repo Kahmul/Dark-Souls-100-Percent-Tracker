@@ -31,7 +31,7 @@
         npcDroppedItems.Add(1097, {50007030, 50007031}) 'Logan
         npcDroppedItems.Add(1284, {51400980}) 'Eingyi
         npcDroppedItems.Add(1872, {50000520}) 'Elizabeth
-        npcDroppedItems.Add(1115, {50006040, 50006041}) 'Griggs
+        npcDroppedItems.Add(1115, {50006041, 50006040}) 'Griggs
         npcDroppedItems.Add(1823, {50000510, 50000511}) 'Gough
         npcDroppedItems.Add(1034, {50006010}) 'Darkling Lady
         npcDroppedItems.Add(1842, {51210990}) 'Chester
@@ -44,8 +44,8 @@
         npcDroppedItems.Add(1764, {50006420, 50006421}) 'Shiva's Bodyguard
         npcDroppedItems.Add(1402, {51010960}) 'Undead Merchant (Male)
         npcDroppedItems.Add(1272, {51400990}) 'Fair Lady
-        npcDroppedItems.Add(1864, {50000500, 50000501}) 'Ciaran
-        npcDroppedItems.Add(1513, {50000070, 50006280}) 'Siegmeyer
+        npcDroppedItems.Add(1864, {50000501, 50000500}) 'Ciaran
+        npcDroppedItems.Add(1513, {50006280, 50000070}) 'Siegmeyer
         npcDroppedItems.Add(11200818, {50008000, 50008001}) 'Pharis
 
 
