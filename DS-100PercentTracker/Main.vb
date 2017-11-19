@@ -8,7 +8,7 @@ Public Class Main
     Shared Version As String
 
     Private WithEvents refTimer As New System.Windows.Forms.Timer()
-    Const refTimer_Interval = 200
+    Const refTimer_Interval = 500
 
     Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAcess As UInt32, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Int32) As IntPtr
     Private Declare Function ReadProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
@@ -453,8 +453,9 @@ Public Class Main
         ' Timer running at an interval of 500ms. Checks all the flags defined at the top
 
         If IsPlayerLoaded() = False Then
-            'Everytime the player enters a loadscreen/the main menu, the hook gets disconnected and reconnected
-            If reloadedHook = False Then
+            'Everytime the player enters a loadscreen, the hook gets disconnected and reconnected
+            'If IGT returns 0, the player is in the main menu. Disconnecting in the main menu may lead to the game freezing
+            If reloadedHook = False And GetIngameTimeInMilliseconds() <> 0 Then
                 rehook()
                 reloadedHook = True
             End If
