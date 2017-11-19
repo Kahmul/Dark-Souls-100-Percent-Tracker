@@ -8,7 +8,7 @@ Public Class Main
     Shared Version As String
 
     Private WithEvents refTimer As New System.Windows.Forms.Timer()
-    Const refTimer_Interval = 500
+    Const refTimer_Interval = 200
 
     Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAcess As UInt32, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Int32) As IntPtr
     Private Declare Function ReadProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
@@ -141,7 +141,7 @@ Public Class Main
 
     Dim totalShortcutsLockedDoorsFlags As Array = {11810105, 11600100, 11410340, 11210102, 11210122, 11210132, 11510251, 11510257, 11510220, 11510200,
                                                     11510210, 11020302, 11500100, 11500105, 11010101, 11010160, 11200110, 11600160, 11010100, 11700120,
-                                                    11700110, 11300900, 11300901, 11300210, 11100135, 11100030, 11000100, 'Shortcuts end here
+                                                    11700110, 11300900, 11300901, 11300210, 11100135, 11100030, 11000100, 11010621, 'Shortcuts end here
                                                     11810103, 11810104, 11810106, 11810110, 11600120, 11700300, 11700301, 11700302, 11700303, 11700304,
                                                     11700305, 11700306, 11700140, 11000111, 11500112, 11500116, 11010171, 11600110, 11010140, 11010181,
                                                     11000120, 11010191, 11010192, 11010172, 11100120, 11210650 'Locked doors end here

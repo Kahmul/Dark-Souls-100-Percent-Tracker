@@ -59,6 +59,7 @@
         npcDroppedItems.Add(800, {51410990}) 'Sunlight Maggot Chaos Firebug
         npcDroppedItems.Add(1062, {50007020}) 'Hollowed Oscar
 
+
         npcHostileDeadFlags = New List(Of Array)
 
         'NPCs not tied to questlines
