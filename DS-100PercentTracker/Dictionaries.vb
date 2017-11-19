@@ -6,6 +6,9 @@
     'Dictionary for the dropped item flags of each NPC. Key is the dead flag for each NPC, values are the dropped item flags
     Public Shared npcDroppedItems As Dictionary(Of Integer, Array)
 
+    'Dictionary for the hostile flags of each NPC that isn't tied to a questline. Key is just an index, values are the hostile and dead flags
+    Public Shared npcHostileDeadFlags As List(Of Array)
+
     'Dictionary for treasure locations that have multiple pickups/event flags associated with it. Key is the first flag, values are the remaining flags
     Public Shared sharedTreasureLocationItems As Dictionary(Of Integer, Array)
 
@@ -25,10 +28,11 @@
 
         npcDroppedItems = New Dictionary(Of Integer, Array)
 
-        'Friendly NPCs
+        'Permanent dropped items from NPCs
         npcDroppedItems.Add(1322, {51010990}) 'Andre
+        npcDroppedItems.Add(1362, {51510940}) 'Giant Blacksmith
         npcDroppedItems.Add(1342, {51300990, 51300991}) 'Vamos
-        npcDroppedItems.Add(1097, {50007030, 50007031}) 'Logan
+        npcDroppedItems.Add(1097, {50007031, 50007030}) 'Logan
         npcDroppedItems.Add(1284, {51400980}) 'Eingyi
         npcDroppedItems.Add(1872, {50000520}) 'Elizabeth
         npcDroppedItems.Add(1115, {50006041, 50006040}) 'Griggs
@@ -53,7 +57,24 @@
         npcDroppedItems.Add(11210681, {51210921}) 'Carving Mimic in DLC
         npcDroppedItems.Add(11210680, {51210981}) 'Crest Key Mimic in DLC
         npcDroppedItems.Add(800, {51410990}) 'Sunlight Maggot Chaos Firebug
-        npcDroppedItems.Add(1062, {51410990}) 'Hollowed Oscar
+        npcDroppedItems.Add(1062, {50007020}) 'Hollowed Oscar
+
+        npcHostileDeadFlags = New List(Of Array)
+
+        'NPCs not tied to questlines
+        npcHostileDeadFlags.Add({1321, 1322}) 'Andre
+        npcHostileDeadFlags.Add({1361, 1362}) 'Giant Blacksmith
+        npcHostileDeadFlags.Add({1341, 1342}) 'Vamos
+        npcHostileDeadFlags.Add({1283, 1284}) 'Eingyi
+        npcHostileDeadFlags.Add({1822, 1823}) 'Gough
+        npcHostileDeadFlags.Add({1841, 1842}) 'Chester
+        npcHostileDeadFlags.Add({1701, 1702}) 'Oswald
+        npcHostileDeadFlags.Add({1197, 1198}) 'Petrus
+        npcHostileDeadFlags.Add({1294, 1295}) 'Quelana
+        npcHostileDeadFlags.Add({1763, 1764}) 'Shiva's Bodyguard
+        npcHostileDeadFlags.Add({1401, 1402}) 'Undead Merchant (Male)
+        npcHostileDeadFlags.Add({1434, 1435}) 'Domhnall
+
 
 
         sharedTreasureLocationItems = New Dictionary(Of Integer, Array)

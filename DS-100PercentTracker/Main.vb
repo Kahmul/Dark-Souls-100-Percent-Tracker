@@ -8,6 +8,7 @@ Public Class Main
     Shared Version As String
 
     Private WithEvents refTimer As New System.Windows.Forms.Timer()
+    Const refTimer_Interval = 500
 
     Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAcess As UInt32, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Int32) As IntPtr
     Private Declare Function ReadProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
@@ -349,7 +350,7 @@ Public Class Main
             Invoke(
                 Sub()
                     refTimer = New System.Windows.Forms.Timer
-                    refTimer.Interval = 1000
+                    refTimer.Interval = refTimer_Interval
                     AddHandler refTimer.Tick, AddressOf refTimer_Tick
                     refTimer.Start()
                 End Sub)
@@ -357,7 +358,8 @@ Public Class Main
 
         Else
             MsgBox("Couldn't find the Dark Souls process!")
-
+            SetHookButtonsEnabled(True, False)
+            Return
         End If
 
         SetHookButtonsEnabled(False, True)
@@ -445,13 +447,13 @@ Public Class Main
 
     'Used to restart the hook everytime the player enters a loadscreen or the main menu.
     'The program can't stay hooked for too long otherwise the game crashes. This eleviates this issue
-    Dim reloadedHook As Boolean
+    Dim reloadedHook = True
 
     Private Sub CheckAllEventFlags()
-        ' Timer running at an interval of 1000ms. Checks all the flags defined at the top
+        ' Timer running at an interval of 500ms. Checks all the flags defined at the top
 
         If IsPlayerLoaded() = False Then
-            'Everytime the player enters a loadscree/the main menu, the hook gets disconnected and reconnected
+            'Everytime the player enters a loadscreen/the main menu, the hook gets disconnected and reconnected
             If reloadedHook = False Then
                 rehook()
                 reloadedHook = True
@@ -461,16 +463,13 @@ Public Class Main
 
         reloadedHook = False
 
-        'Console.WriteLine(GetCurrentArea())
-
         'Return if the player is not in his own world
-        Dim chrType = GetPlayerCharacterType()
-        'ReadBitArray()
-        If chrType <> PlayerCharacterType.Hollow And chrType <> PlayerCharacterType.Human Then
+        If isPlayerInOwnWorld() = False Then
             Return
         End If
 
         'If the IGT doesn't change, then the player entered a loading screen or is in the main menu
+        'Additional check to isPlayerLoaded() because it returns true in some cases where the player is not actually in-game
         Dim currentIGT = GetIngameTimeInMilliseconds()
         Thread.Sleep(50)
         Dim nextIGT = GetIngameTimeInMilliseconds()
@@ -547,6 +546,19 @@ Public Class Main
         'Check non-respawning enemies killed
         nonRespawningEnemiesKilled = getKilledNonRespawningEnemiesCount()
 
+        Dim totalNonRespawningEnemiesCount = totalNonRespawningEnemiesFlags.Length
+
+        For Each npc In Dictionaries.npcHostileDeadFlags
+            If GetEventFlagState(npc.GetValue(0)) = True Then
+                'If NPC is just hostile, add him to total non-respawning enemies required
+                totalNonRespawningEnemiesCount += 1
+            ElseIf GetEventFlagState(npc.GetValue(1)) = True Then
+                'If NPC is dead, add him to total non-respawning enemies required and mark him as killed
+                totalNonRespawningEnemiesCount += 1
+                nonRespawningEnemiesKilled += 1
+            End If
+        Next
+
         'Check whether all NPC questlines have been finished
         npcQuestlinesCompleted = getCompletedQuestlinesCount()
 
@@ -564,7 +576,7 @@ Public Class Main
 
         Dim itemPercentage As Double = itemsPickedUp * (0.25 / totalItemsCount)
         Dim bossPercentage As Double = bossesKilled * (0.25 / totalBossFlags.Length)
-        Dim nonrespawningPercentage As Double = nonRespawningEnemiesKilled * (0.15 / totalNonRespawningEnemiesFlags.Length)
+        Dim nonrespawningPercentage As Double = nonRespawningEnemiesKilled * (0.15 / totalNonRespawningEnemiesCount)
         Dim questlinesPercentage As Double = npcQuestlinesCompleted * (0.2 / totalNPCQuestlineFlags.Length)
         Dim shortcutsLockedDoorsPercentage As Double = shortcutsLockedDoorsUnlocked * (0.1 / totalShortcutsLockedDoorsFlags.Length)
         Dim illusoryWallsPercentage As Double = illusoryWallsRevealed * (0.025 / totalIllusoryWallsFlags.Length)
@@ -586,7 +598,7 @@ Public Class Main
             Sub()
                 treasureLocationsValueLabel.Text = $"{itemsPickedUp} / {totalItemsCount}"
                 bossesKilledValueLabel.Text = $"{bossesKilled} / {totalBossFlags.Length}"
-                nonRespawningEnemiesValueLabel.Text = $"{nonRespawningEnemiesKilled} / {totalNonRespawningEnemiesFlags.Length}"
+                nonRespawningEnemiesValueLabel.Text = $"{nonRespawningEnemiesKilled} / {totalNonRespawningEnemiesCount}"
                 npcQuestlinesValueLabel.Text = $"{npcQuestlinesCompleted} / {totalNPCQuestlineFlags.Length}"
                 shortcutsValueLabel.Text = $"{shortcutsLockedDoorsUnlocked} / {totalShortcutsLockedDoorsFlags.Length}"
                 illusoryWallsValueLabel.Text = $"{illusoryWallsRevealed} / {totalIllusoryWallsFlags.Length}"
@@ -711,6 +723,12 @@ Public Class Main
 
     End Function
 
+    Private Function isPlayerInOwnWorld() As Boolean
+        Dim chrType = GetPlayerCharacterType()
+        Return chrType = PlayerCharacterType.Hollow Or chrType = PlayerCharacterType.Human
+    End Function
+
+
     Private Sub rehook()
         Invoke(
             Sub()
@@ -809,7 +827,8 @@ Public Class Main
     End Sub
 
     Private Sub Form1_exit(sender As Object, e As EventArgs) Handles MyBase.Closing
-        unhook()
+        Dim newThread = New Thread(AddressOf unhook) With {.IsBackground = True}
+        newThread.Start()
     End Sub
 
     Private Function GetEventFlagState(eventID As Integer) As Boolean
@@ -846,17 +865,17 @@ Public Class Main
         If ptr = 0 Then Return
 
         Dim size = 4
-        Dim bytes = RBytes(ptr + &H3C4, size)
+        Dim bytes = RBytes(ptr + &H1FC, size)
         Dim bitArray As New BitArray(bytes)
 
         'Bits are stored in array in reverse order
-        Dim indexToAccess = 23
+        Dim indexToAccess = 11
         Dim reversedIndex = size * 8 - 1 - indexToAccess
         Console.WriteLine($"{bitArray(reversedIndex)}")
-        bitArray.Set(reversedIndex, True)
-        Dim newBytes(size) As Byte
-        bitArray.CopyTo(newBytes, 0)
-        WBytes(ptr + &H3C4, newBytes)
+        'bitArray.Set(reversedIndex, True)
+        'Dim newBytes(size) As Byte
+        'bitArray.CopyTo(newBytes, 0)
+        'WBytes(ptr + &H3C4, newBytes)
 
         'Console.WriteLine($"Length: {bitArray.Length}")
         'Dim int As Integer
