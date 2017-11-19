@@ -272,7 +272,6 @@ Public Class Main
         Return _rtnBytes
     End Function
 
-
     Public Sub WInt32(ByVal addr As IntPtr, val As Int32)
         WriteProcessMemory(_targetProcessHandle, addr, BitConverter.GetBytes(val), 4, Nothing)
     End Sub
@@ -444,15 +443,29 @@ Public Class Main
 
     End Sub
 
+    'Used to restart the hook everytime the player enters a loadscreen or the main menu.
+    'The program can't stay hooked for too long otherwise the game crashes. This eleviates this issue
+    Dim reloadedHook As Boolean
+
     Private Sub CheckAllEventFlags()
         ' Timer running at an interval of 1000ms. Checks all the flags defined at the top
 
         If IsPlayerLoaded() = False Then
+            'Everytime the player enters a loadscree/the main menu, the hook gets disconnected and reconnected
+            If reloadedHook = False Then
+                rehook()
+                reloadedHook = True
+            End If
             Return
         End If
 
+        reloadedHook = False
+
+        'Console.WriteLine(GetCurrentArea())
+
         'Return if the player is not in his own world
         Dim chrType = GetPlayerCharacterType()
+        'ReadBitArray()
         If chrType <> PlayerCharacterType.Hollow And chrType <> PlayerCharacterType.Human Then
             Return
         End If
@@ -482,31 +495,6 @@ Public Class Main
         Dim foggatesDissolved As Integer
 
         Dim startingClass = GetPlayerStartingClass()
-
-        'Check bosses killed
-        For Each item In totalBossFlags
-            value = GetEventFlagState(item)
-
-            If value = True Then
-                bossesKilled += 1
-            End If
-        Next
-
-        'Check non-respawning enemies killed
-        For Each item In totalNonRespawningEnemiesFlags
-            If item = 11515080 Or item = 11515081 Then
-                value = GetEventFlagState(11510400) 'Check for AL Gargoyles if it's Dark AL
-                If value = True Then
-                    nonRespawningEnemiesKilled += 1
-                    Continue For
-                End If
-            End If
-            value = GetEventFlagState(item)
-
-            If value = True Then
-                nonRespawningEnemiesKilled += 1
-            End If
-        Next
 
         'Check all treasure locations
         For Each item In totalItemFlags
@@ -550,54 +538,27 @@ Public Class Main
             End If
         Next
 
-        'Check whether all NPC questlines have been finished
-        For Each item In totalNPCQuestlineFlags
-            value = GetEventFlagState(item)
-
-            If value = True Then
-                npcQuestlinesCompleted += 1
-            ElseIf item = 1003 Then 'Solaire has two outcomes: dead or rescued in Izalith
-                value = GetEventFlagState(1011)
-                If value = True Then
-                    npcQuestlinesCompleted += 1
-                End If
-            ElseIf item = 1862 Then 'Ciaran can be disabled after giving her the soul, which uses another flag
-                value = GetEventFlagState(1865)
-                If value = True Then
-                    npcQuestlinesCompleted += 1
-                End If
-            End If
-        Next
-
-        'Check whether all shortcuts and locked doors have been unlocked
-        For Each item In totalShortcutsLockedDoorsFlags
-            value = GetEventFlagState(item)
-
-            If value = True Then
-                shortcutsLockedDoorsUnlocked += 1
-            End If
-        Next
-
-        'Check whether all illusory walls have been revealed
-        For Each item In totalIllusoryWallsFlags
-            value = GetEventFlagState(item)
-
-            If value = True Then
-                illusoryWallsRevealed += 1
-            End If
-        Next
-
-        'Check whether all foggates have been dissolved
-        For Each item In totalFoggatesFlags
-            value = GetEventFlagState(item)
-
-            If value = True Then
-                foggatesDissolved += 1
-            End If
-        Next
-
         'Add up the standard treasure location count with the starting items count and the NPC-dropped items count
         Dim totalItemsCount = totalItemFlags.Length + startingItemFlags.Length + additionalNPCItemsCount
+
+        'Check bosses killed
+        bossesKilled = getDefeatedBossesCount()
+
+        'Check non-respawning enemies killed
+        nonRespawningEnemiesKilled = getKilledNonRespawningEnemiesCount()
+
+        'Check whether all NPC questlines have been finished
+        npcQuestlinesCompleted = getCompletedQuestlinesCount()
+
+        'Check whether all shortcuts and locked doors have been unlocked
+        shortcutsLockedDoorsUnlocked = getUnlockedShortcutsAndLockedDoorsCount()
+
+        'Check whether all illusory walls have been revealed
+        illusoryWallsRevealed = getRevealedIllusoryWallsCount()
+
+        'Check whether all foggates have been dissolved
+        foggatesDissolved = getDissolvedFoggatesCount()
+
 
         Dim percentage As Double
 
@@ -612,16 +573,14 @@ Public Class Main
         percentage = itemPercentage + bossPercentage + nonrespawningPercentage + questlinesPercentage + shortcutsLockedDoorsPercentage + illusoryWallsPercentage + foggatesPercentage
         percentage = Math.Floor(percentage * 100)
 
-        'Before updating, check if the player is in a loadscreen to make sure all flags have been accounted for
+        'Before updating the UI, check if the player is in a loadscreen to make sure all flags have been accounted for
         If IsPlayerLoaded() = False Then
             Invoke(
-            Sub()
-                refTimer.Start()
-            End Sub)
+                Sub()
+                    refTimer.Start()
+                End Sub)
             Return
         End If
-
-
 
         Invoke(
             Sub()
@@ -638,6 +597,133 @@ Public Class Main
                 refTimer.Start()
             End Sub)
     End Sub
+
+    Private Function getDissolvedFoggatesCount() As Integer
+        Dim value As Boolean
+        Dim count As Integer
+
+        For Each item In totalFoggatesFlags
+            value = GetEventFlagState(item)
+
+            If value = True Then
+                count += 1
+            End If
+        Next
+
+        Return count
+
+    End Function
+
+    Private Function getDefeatedBossesCount() As Integer
+        Dim value As Boolean
+        Dim count As Integer
+
+        For Each item In totalBossFlags
+            value = GetEventFlagState(item)
+
+            If value = True Then
+                count += 1
+            End If
+        Next
+
+        Return count
+
+    End Function
+
+    Private Function getRevealedIllusoryWallsCount() As Integer
+        Dim value As Boolean
+        Dim count As Integer
+
+        For Each item In totalIllusoryWallsFlags
+            value = GetEventFlagState(item)
+
+            If value = True Then
+                count += 1
+            End If
+        Next
+
+        Return count
+
+    End Function
+
+    Private Function getUnlockedShortcutsAndLockedDoorsCount() As Integer
+        Dim value As Boolean
+        Dim count As Integer
+
+        For Each item In totalShortcutsLockedDoorsFlags
+            value = GetEventFlagState(item)
+
+            If value = True Then
+                count += 1
+            End If
+        Next
+
+        Return count
+
+    End Function
+
+    Private Function getCompletedQuestlinesCount() As Integer
+        Dim value As Boolean
+        Dim count As Integer
+
+        For Each item In totalNPCQuestlineFlags
+            value = GetEventFlagState(item)
+
+            If value = True Then
+                count += 1
+            ElseIf item = 1003 Then 'Solaire has two outcomes: dead or rescued in Izalith
+                value = GetEventFlagState(1011)
+                If value = True Then
+                    count += 1
+                End If
+            ElseIf item = 1862 Then 'Ciaran can be disabled after giving her the soul, which uses another flag
+                value = GetEventFlagState(1865)
+                If value = True Then
+                    count += 1
+                End If
+            End If
+        Next
+
+        Return count
+
+    End Function
+
+    Private Function getKilledNonRespawningEnemiesCount() As Integer
+        Dim value As Boolean
+        Dim count As Integer
+
+        For Each item In totalNonRespawningEnemiesFlags
+            If item = 11515080 Or item = 11515081 Then
+                value = GetEventFlagState(11510400) 'Check for AL Gargoyles if it's Dark AL
+                If value = True Then
+                    count += 1
+                    Continue For
+                End If
+            End If
+            value = GetEventFlagState(item)
+
+            If value = True Then
+                count += 1
+            End If
+        Next
+
+        Return count
+
+    End Function
+
+    Private Sub rehook()
+        Invoke(
+            Sub()
+                refTimer.Stop()
+
+                Dim newThread = New Thread(AddressOf RestartHook) With {.IsBackground = True}
+                newThread.Start()
+
+                refTimer.Start()
+            End Sub)
+    End Sub
+
+
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
@@ -714,6 +800,14 @@ Public Class Main
         SetHookButtonsEnabled(True, False)
     End Sub
 
+    Private Sub RestartHook()
+        DoUnhookInOtherThread()
+        Console.WriteLine("restart")
+        Thread.Sleep(50)
+        Dim newThread = New Thread(AddressOf HookInOtherThread) With {.IsBackground = True}
+        newThread.Start()
+    End Sub
+
     Private Sub Form1_exit(sender As Object, e As EventArgs) Handles MyBase.Closing
         unhook()
     End Sub
@@ -745,6 +839,56 @@ Public Class Main
         Dim ptr = If(exeVER = "Debug", RInt32(&H13823C4), RInt32(&H137E204))
         If ptr = 0 Then Return -1
         Return CType(RInt32(ptr + &HA28), PlayerCharacterType)
+    End Function
+
+    Private Sub ReadBitArray()
+        Dim ptr = GetPlayerCharData1Ptr()
+        If ptr = 0 Then Return
+
+        Dim size = 4
+        Dim bytes = RBytes(ptr + &H3C4, size)
+        Dim bitArray As New BitArray(bytes)
+
+        'Bits are stored in array in reverse order
+        Dim indexToAccess = 23
+        Dim reversedIndex = size * 8 - 1 - indexToAccess
+        Console.WriteLine($"{bitArray(reversedIndex)}")
+        bitArray.Set(reversedIndex, True)
+        Dim newBytes(size) As Byte
+        bitArray.CopyTo(newBytes, 0)
+        WBytes(ptr + &H3C4, newBytes)
+
+        'Console.WriteLine($"Length: {bitArray.Length}")
+        'Dim int As Integer
+        'For Each bit In bitArray
+        'Console.WriteLine($"{int}: {bit}")
+        'Int += 1
+        'Next
+
+    End Sub
+
+    Private Function GetPlayerCharData1Ptr() As IntPtr
+        Dim ptr = If(exeVER = "Debug", RInt32(&H1381804), RInt32(&H137D644))
+        If ptr = 0 Then Return -1
+        Return RInt32(ptr + &H3C) 'pointer to chardata1
+    End Function
+
+    Private Function GetCurrentArea() As Map
+        Dim ptr = If(exeVER = "Debug", RInt32(&H13823C4), RInt32(&H137E204))
+        If ptr = 0 Then Return -1
+
+        Dim world = CType(RBytes(ptr + &HA13, 1)(0), Integer)
+        Dim area = CType(RBytes(ptr + &HA12, 1)(0), Integer)
+
+        Return CType(world * 10 + area, Map)
+    End Function
+
+    Private Function GetPressedButton() As Double
+        Dim ptr = If(exeVER = "Debug", RInt32(&H1381048), RInt32(&H137CE88))
+        If ptr = 0 Then Return -1
+        ptr = RInt32(ptr + 4)
+        If ptr = 0 Then Return -1
+        Return RDouble(ptr + &H18C)
     End Function
 
     Function GetIngameTimeInMilliseconds() As Integer

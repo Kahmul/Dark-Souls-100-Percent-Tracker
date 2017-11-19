@@ -230,7 +230,7 @@ Partial Class Main
         Me.Label1.TabIndex = 31
         Me.Label1.Text = "Bosses:"
         '
-        'Form1
+        'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -256,7 +256,7 @@ Partial Class Main
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
-        Me.Name = "Form1"
+        Me.Name = "Main"
         Me.Text = "SpeedSouls - Dark Souls 100% Tracker"
         Me.ResumeLayout(False)
         Me.PerformLayout()

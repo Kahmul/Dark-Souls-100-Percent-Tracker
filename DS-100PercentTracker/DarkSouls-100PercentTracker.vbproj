@@ -114,6 +114,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="PlayerCharacterType.vb" />
+    <Compile Include="Map.vb" />
     <Compile Include="PlayerStartingClass.vb" />
   </ItemGroup>
   <ItemGroup>
