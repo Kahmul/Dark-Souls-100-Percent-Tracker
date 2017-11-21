@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="asm.vb" />
     <Compile Include="Dictionaries.vb" />
+    <Compile Include="Game.vb" />
     <Compile Include="Main.vb">
       <SubType>Form</SubType>
     </Compile>
