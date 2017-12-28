@@ -2,14 +2,13 @@
 Imports System.Reflection
 Imports System.Runtime.InteropServices
 Imports System.Threading
-Imports Game
 
 Public Class Main
 
     Shared Version As String
 
-    Private WithEvents refTimer As New System.Windows.Forms.Timer()
-    Const refTimer_Interval = 500
+    Private WithEvents updateTimer As New System.Windows.Forms.Timer()
+    Const updateTimer_Interval = 500
 
     Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAcess As UInt32, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Int32) As IntPtr
     Private Declare Function ReadProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
@@ -270,10 +269,10 @@ Public Class Main
 
             Invoke(
                 Sub()
-                    refTimer = New System.Windows.Forms.Timer
-                    refTimer.Interval = refTimer_Interval
-                    AddHandler refTimer.Tick, AddressOf refTimer_Tick
-                    refTimer.Start()
+                    updateTimer = New System.Windows.Forms.Timer
+                    updateTimer.Interval = updateTimer_Interval
+                    AddHandler updateTimer.Tick, AddressOf updateTimer_Tick
+                    updateTimer.Start()
                 End Sub)
 
 
@@ -359,7 +358,7 @@ Public Class Main
         WriteCodeAndFlushCache(_targetProcessHandle, getflagfuncmem, a.bytes, a.bytes.Length, 0)
     End Sub
 
-    Private Sub refTimer_Tick()
+    Private Sub updateTimer_Tick()
 
         Dim newThread As New Thread(AddressOf scanEventFlagsAndUpdateUI) With {.IsBackground = True}
         newThread.Start()
@@ -373,11 +372,12 @@ Public Class Main
     Private Sub scanEventFlagsAndUpdateUI()
         ' Timer running at an interval of 500ms. Checks all the flags defined at the top
 
+        'isInMainMenu()
         If Game.IsPlayerLoaded() = False Then
             'Everytime the player enters a loadscreen, the hook gets disconnected and reconnected
             'If IGT returns 0, the player is in the main menu. Disconnecting in the main menu may lead to the game freezing
             If reloadedHook = False And Game.GetIngameTimeInMilliseconds() <> 0 Then
-                Thread.Sleep(100)
+                Thread.Sleep(200)
                 rehook()
                 reloadedHook = True
             End If
@@ -402,7 +402,7 @@ Public Class Main
 
         Invoke(
             Sub()
-                refTimer.Stop()
+                updateTimer.Stop()
             End Sub)
 
         Game.updateAllEventFlags()
@@ -411,7 +411,7 @@ Public Class Main
         If Game.IsPlayerLoaded() = False Then
             Invoke(
                 Sub()
-                    refTimer.Start()
+                    updateTimer.Start()
                 End Sub)
             Return
         End If
@@ -428,25 +428,33 @@ Public Class Main
 
                 percentageLabel.Text = $"{Game.GetTotalCompletionPercentage}%"
 
-                refTimer.Start()
+                updateTimer.Start()
             End Sub)
+    End Sub
+
+    Private Sub isInMainMenu()
+        Dim ptr = If(exeVER = "Debug", RInt32(&H137C890), RInt32(&H13786D0))
+        If ptr = 0 Then Return
+        'Dim int = CType(RBytes(ptr + &HB4E, 1)(0), Integer)
+        Dim int = RInt32(ptr + &HFD0)
+        Console.WriteLine($"{int}")
     End Sub
 
     Private Sub rehook()
         Invoke(
             Sub()
-                refTimer.Stop()
+                updateTimer.Stop()
 
                 Dim newThread = New Thread(AddressOf RestartHook) With {.IsBackground = True}
                 newThread.Start()
 
-                refTimer.Start()
+                updateTimer.Start()
             End Sub)
     End Sub
 
 
 
-    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub UI_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         initHooks()
 
@@ -484,9 +492,9 @@ Public Class Main
 
         isHooked = False
 
-        refTimer.Stop()
-        Dim refTimerTickEventHandler As New EventHandler(AddressOf refTimer_Tick)
-        RemoveHandler refTimer.Tick, refTimerTickEventHandler
+        updateTimer.Stop()
+        Dim updateTimerTickEventHandler As New EventHandler(AddressOf updateTimer_Tick)
+        RemoveHandler updateTimer.Tick, updateTimerTickEventHandler
 
         VirtualFreeEx(_targetProcessHandle, hook1mem, 0, MEM_RELEASE)
         VirtualFreeEx(_targetProcessHandle, getflagfuncmem, 0, MEM_RELEASE)
@@ -527,7 +535,7 @@ Public Class Main
         newThread.Start()
     End Sub
 
-    Private Sub Form1_exit(sender As Object, e As EventArgs) Handles MyBase.Closing
+    Private Sub UI_Exit(sender As Object, e As EventArgs) Handles MyBase.Closing
         Dim newThread = New Thread(AddressOf unhook) With {.IsBackground = True}
         newThread.Start()
     End Sub

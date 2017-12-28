@@ -43,7 +43,8 @@ Public Class Game
                                     51700560, 51700580, 51700590, 51700600, 51700630, 51700640, 51700020, 51700050, 51800050, 51810000,
                                     51810060, 51810070, 51810080,
                                     51100980, 'Firesurge hollow item flag
-                                    51700990  'Duke's Archives Tower Cell Key Serpent item flag
+                                    51700990, 'Duke's Archives Tower Cell Key Serpent item flag
+                                    51320990  'Stone Dragon Tail
                                         }
 
     Shared totalBossFlags As Array = {2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14,
@@ -113,9 +114,8 @@ Public Class Game
 
     Private Shared Sub updateTreasureLocationsCount()
         Dim value As Boolean
-        itemsPickedUp = 0
-
         totalTreasureLocationsCount = totalItemFlags.Length
+        itemsPickedUp = 0
 
         'Check all treasure locations
         For Each item In totalItemFlags

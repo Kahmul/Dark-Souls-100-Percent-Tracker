@@ -8,17 +8,17 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("DS-EventHook")>
+<Assembly: AssemblyTitle("DS-100PercentTracker")>
 <Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("")>
-<Assembly: AssemblyProduct("DS-EventHook")>
-<Assembly: AssemblyCopyright("Copyright ©  2016")>
+<Assembly: AssemblyProduct("DS-100PercentTracker")>
+<Assembly: AssemblyCopyright("Copyright ©  2017")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("d1a7bc35-55e7-43e4-94a3-6a0f50c98a7d")>
+<Assembly: Guid("7847005a-8d2c-4190-b24a-365c876f0168")>
 
 ' Version information for an assembly consists of the following four values:
 '
