@@ -40,6 +40,8 @@ Partial Class Main
         Me.shortcutsValueLabel = New System.Windows.Forms.Label()
         Me.bossesKilledValueLabel = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
+        Me.bonfiresValueLabel = New System.Windows.Forms.Label()
+        Me.Label8 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'btnHook
@@ -92,7 +94,7 @@ Partial Class Main
         Me.percentageLabel.AutoSize = True
         Me.percentageLabel.Font = New System.Drawing.Font("Calibri", 30.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.percentageLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.percentageLabel.Location = New System.Drawing.Point(273, 86)
+        Me.percentageLabel.Location = New System.Drawing.Point(255, 106)
         Me.percentageLabel.Name = "percentageLabel"
         Me.percentageLabel.Size = New System.Drawing.Size(71, 49)
         Me.percentageLabel.TabIndex = 13
@@ -114,7 +116,7 @@ Partial Class Main
         Me.Label5.AutoSize = True
         Me.Label5.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label5.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.Label5.Location = New System.Drawing.Point(12, 138)
+        Me.Label5.Location = New System.Drawing.Point(12, 136)
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(163, 17)
         Me.Label5.TabIndex = 15
@@ -125,7 +127,7 @@ Partial Class Main
         Me.Label6.AutoSize = True
         Me.Label6.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label6.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.Label6.Location = New System.Drawing.Point(12, 165)
+        Me.Label6.Location = New System.Drawing.Point(12, 163)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(90, 17)
         Me.Label6.TabIndex = 16
@@ -136,7 +138,7 @@ Partial Class Main
         Me.Label7.AutoSize = True
         Me.Label7.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label7.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.Label7.Location = New System.Drawing.Point(13, 192)
+        Me.Label7.Location = New System.Drawing.Point(13, 190)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(65, 17)
         Me.Label7.TabIndex = 17
@@ -180,7 +182,7 @@ Partial Class Main
         Me.illusoryWallsValueLabel.AutoSize = True
         Me.illusoryWallsValueLabel.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.illusoryWallsValueLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.illusoryWallsValueLabel.Location = New System.Drawing.Point(178, 165)
+        Me.illusoryWallsValueLabel.Location = New System.Drawing.Point(178, 163)
         Me.illusoryWallsValueLabel.Name = "illusoryWallsValueLabel"
         Me.illusoryWallsValueLabel.Size = New System.Drawing.Size(36, 17)
         Me.illusoryWallsValueLabel.TabIndex = 27
@@ -191,7 +193,7 @@ Partial Class Main
         Me.foggatesValueLabel.AutoSize = True
         Me.foggatesValueLabel.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.foggatesValueLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.foggatesValueLabel.Location = New System.Drawing.Point(178, 192)
+        Me.foggatesValueLabel.Location = New System.Drawing.Point(178, 190)
         Me.foggatesValueLabel.Name = "foggatesValueLabel"
         Me.foggatesValueLabel.Size = New System.Drawing.Size(36, 17)
         Me.foggatesValueLabel.TabIndex = 28
@@ -202,7 +204,7 @@ Partial Class Main
         Me.shortcutsValueLabel.AutoSize = True
         Me.shortcutsValueLabel.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.shortcutsValueLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.shortcutsValueLabel.Location = New System.Drawing.Point(178, 138)
+        Me.shortcutsValueLabel.Location = New System.Drawing.Point(178, 136)
         Me.shortcutsValueLabel.Name = "shortcutsValueLabel"
         Me.shortcutsValueLabel.Size = New System.Drawing.Size(36, 17)
         Me.shortcutsValueLabel.TabIndex = 29
@@ -230,12 +232,36 @@ Partial Class Main
         Me.Label1.TabIndex = 31
         Me.Label1.Text = "Bosses:"
         '
+        'bonfiresValueLabel
+        '
+        Me.bonfiresValueLabel.AutoSize = True
+        Me.bonfiresValueLabel.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.bonfiresValueLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.bonfiresValueLabel.Location = New System.Drawing.Point(178, 219)
+        Me.bonfiresValueLabel.Name = "bonfiresValueLabel"
+        Me.bonfiresValueLabel.Size = New System.Drawing.Size(36, 17)
+        Me.bonfiresValueLabel.TabIndex = 33
+        Me.bonfiresValueLabel.Text = "X / X"
+        '
+        'Label8
+        '
+        Me.Label8.AutoSize = True
+        Me.Label8.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label8.ForeColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.Label8.Location = New System.Drawing.Point(13, 219)
+        Me.Label8.Name = "Label8"
+        Me.Label8.Size = New System.Drawing.Size(110, 17)
+        Me.Label8.TabIndex = 32
+        Me.Label8.Text = "Kindled Bonfires:"
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.ClientSize = New System.Drawing.Size(459, 302)
+        Me.Controls.Add(Me.bonfiresValueLabel)
+        Me.Controls.Add(Me.Label8)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.bossesKilledValueLabel)
         Me.Controls.Add(Me.shortcutsValueLabel)
@@ -280,4 +306,6 @@ Partial Class Main
     Friend WithEvents shortcutsValueLabel As Label
     Friend WithEvents bossesKilledValueLabel As Label
     Friend WithEvents Label1 As Label
+    Friend WithEvents bonfiresValueLabel As Label
+    Friend WithEvents Label8 As Label
 End Class

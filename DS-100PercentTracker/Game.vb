@@ -66,7 +66,7 @@ Public Class Game
                                                     11210353, 11210354, 11300856, 11300857, 11310821, 11410107, 11700811, 11700812, 11700813, 11700814,
                                                     11320301, 11320302, 11320303, 11320304, 11320305, 11320306, 11320307, 11320308, 11320309, 11320310,
                                                     11210310, 11210311, 11210312, 11210313, 11210314, 11210315, 11210355, 11410100, 11410101, 11410102,
-                                                    11410103}
+                                                    11410103, 11410104}
 
     Shared totalNPCQuestlineFlags As Array = {11020101, 1862, 1462, 1431, 1115, 1313, 1254, 1097, 1626,
                                             1177, 11200535, 11020606, 1003, 11210021}
@@ -85,6 +85,12 @@ Public Class Game
     Shared totalFoggatesFlags As Array = {11510090, 11510091, 11810090, 11010090, 11300090, 11310090, 11400091, 11500090, 11500091, 11010091,
                                         11320090, 11000090, 11200090, 11700083, 11100091, 11600090}
 
+    Shared totalBonfireFlags As Array = {1801960, 1601961, 1601950, 1021960, 1301961, 1301960, 1011964, 1011962, 1011961, 1811961,
+                                        1811960, 1201961, 1211964, 1211962, 1211961, 1211963, 1211950, 1411964, 1411963, 1411962,
+                                        1411961, 1411960, 1411950, 1401962, 1401961, 1401960, 1321962, 1321961, 1321960, 1101960,
+                                        1511950, 1511960, 1511961, 1511962, 1701950, 1701960, 1701961, 1701962, 1001960, 1501961,
+                                        1311950, 1311960, 1311961}
+
 
     Shared bossesKilled As Integer
     Shared nonRespawningEnemiesKilled As Integer
@@ -93,6 +99,8 @@ Public Class Game
     Shared shortcutsLockedDoorsUnlocked As Integer
     Shared illusoryWallsRevealed As Integer
     Shared foggatesDissolved As Integer
+
+    Shared kindledBonfires As Integer
 
     Shared totalTreasureLocationsCount As Integer
     Shared totalNonRespawningEnemiesCount As Integer
@@ -107,8 +115,44 @@ Public Class Game
         updateUnlockedShortcutsAndLockedDoorsCount()
         updateCompletedQuestlinesCount()
         updateKilledNonRespawningEnemiesCount()
+        updateFullyKindledBonfires()
 
         updateCompletionPercentage()
+    End Sub
+
+    Private Shared Sub updateFullyKindledBonfires()
+        Dim ptr = If(exeVER = "Debug", RInt32(&H13823C4), RInt32(&H137E204))
+        ptr = RInt32(ptr + &HB48)
+        ptr = RInt32(ptr + &H24)
+        ptr = RInt32(ptr)
+        kindledBonfires = 0
+        'Bonfires accessible in this way are only the ones the player has been able to access at some point
+        'Once it reaches the end of the list, the bonfireID is 0 and then it loops back around
+        'So reaching bonfireID = 0 means the loop has to end
+        For i As Integer = 0 To totalBonfireFlags.Length - 1
+            Dim bonfirePtr = RInt32(ptr + 8)
+            Dim bonfireID = RInt32(bonfirePtr + 4)
+
+            If bonfireID = 0 Then
+                Exit For
+            End If
+
+            Dim kindledState = RInt32(bonfirePtr + 8)
+
+            If kindledState = 40 Then
+                kindledBonfires += 1
+            Else
+                'If bonfire is not fully kindled, check whether it's the AL or DoC bonfire
+                'If yes, check whether the respective Firekeeper is dead. If yes, treat the bonfire as fully kindled
+                If bonfireID = 1511960 And GetEventFlagState(1034) Then
+                    kindledBonfires += 1
+                End If
+                If bonfireID = 1401960 And GetEventFlagState(1272) Then
+                    kindledBonfires += 1
+                End If
+            End If
+            ptr = RInt32(ptr) 'Go one step deeper in the struct
+        Next
     End Sub
 
 
@@ -278,19 +322,20 @@ Public Class Game
     End Sub
 
     Private Shared Sub updateCompletionPercentage()
-        Dim itemPercentage As Double = itemsPickedUp * (0.25 / totalTreasureLocationsCount)
+        Dim itemPercentage As Double = itemsPickedUp * (0.2 / totalTreasureLocationsCount)
         Dim bossPercentage As Double = bossesKilled * (0.25 / totalBossFlags.Length)
         Dim nonrespawningPercentage As Double = nonRespawningEnemiesKilled * (0.15 / totalNonRespawningEnemiesCount)
         Dim questlinesPercentage As Double = npcQuestlinesCompleted * (0.2 / totalNPCQuestlineFlags.Length)
         Dim shortcutsLockedDoorsPercentage As Double = shortcutsLockedDoorsUnlocked * (0.1 / totalShortcutsLockedDoorsFlags.Length)
         Dim illusoryWallsPercentage As Double = illusoryWallsRevealed * (0.025 / totalIllusoryWallsFlags.Length)
         Dim foggatesPercentage As Double = foggatesDissolved * (0.025 / totalFoggatesFlags.Length)
+        Dim bonfiresPercentage As Double = kindledBonfires * (0.05 / totalBonfireFlags.Length)
 
-        totalCompletionPercentage = itemPercentage + bossPercentage + nonrespawningPercentage + questlinesPercentage + shortcutsLockedDoorsPercentage + illusoryWallsPercentage + foggatesPercentage
+        totalCompletionPercentage = itemPercentage + bossPercentage + nonrespawningPercentage + questlinesPercentage + shortcutsLockedDoorsPercentage + illusoryWallsPercentage + foggatesPercentage + bonfiresPercentage
         totalCompletionPercentage = Math.Floor(totalCompletionPercentage * 100)
     End Sub
 
-    Private Shared Function GetEventFlagState(eventID As Integer) As Boolean
+    Public Shared Function GetEventFlagState(eventID As Integer) As Boolean
         WInt32(getflagfuncmem + &H400, eventID)
         Dim newThreadHook = CreateRemoteThread(_targetProcessHandle, 0, 0, getflagfuncmem, 0, 0, 0)
         WaitForSingleObject(newThreadHook, &HFFFFFFFFUI)
@@ -339,6 +384,14 @@ Public Class Game
             Return RInt32(RInt32(&H137C8C0) + &H68)
         Else
             Return RInt32(RInt32(&H1378700) + &H68)
+        End If
+    End Function
+
+    Private Shared Function GetCurrentSaveSlot() As Integer
+        If exeVER = "Debug" Then
+            Return RInt32(RInt32(&H137C660) + &HA70)
+        Else
+            Return RInt32(RInt32(&H13784A0) + &HA70)
         End If
     End Function
 
@@ -394,6 +447,12 @@ Public Class Game
             Return foggatesDissolved
         End Get
     End Property
+
+    Public Shared ReadOnly Property GetBonfiresFullyKindled() As Integer
+        Get
+            Return kindledBonfires
+        End Get
+    End Property
     Public Shared ReadOnly Property GetTotalBossCount() As Integer
         Get
             Return totalBossFlags.Length
@@ -430,6 +489,12 @@ Public Class Game
     Public Shared ReadOnly Property GetTotalFoggatesCount() As Integer
         Get
             Return totalFoggatesFlags.Length
+        End Get
+    End Property
+
+    Public Shared ReadOnly Property GetTotalBonfiresCount() As Integer
+        Get
+            Return totalBonfireFlags.Length
         End Get
     End Property
 

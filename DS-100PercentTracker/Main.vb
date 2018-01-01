@@ -425,6 +425,7 @@ Public Class Main
                 shortcutsValueLabel.Text = $"{Game.GetShortcutsAndLockedDoorsUnlocked} / {Game.GetTotalShortcutsAndLockedDoorsCount}"
                 illusoryWallsValueLabel.Text = $"{Game.GetIllusoryWallsRevealed} / {Game.GetTotalIllusoryWallsCount}"
                 foggatesValueLabel.Text = $"{Game.GetFoggatesDissolved} / {Game.GetTotalFoggatesCount}"
+                bonfiresValueLabel.Text = $"{Game.GetBonfiresFullyKindled} / {Game.GetTotalBonfiresCount}"
 
                 percentageLabel.Text = $"{Game.GetTotalCompletionPercentage}%"
 
@@ -540,6 +541,18 @@ Public Class Main
         newThread.Start()
     End Sub
 
+    Private Sub CheckBonfireKindledStatus()
+        Dim ptr = If(exeVER = "Debug", RInt32(&HC815F10), RInt32(&H137E204))
+        If ptr = 0 Then Return
+        ptr = RInt32(ptr + &H98)
+        ptr = RInt32(ptr + &H11C)
+        ptr = RInt32(ptr + &HE0)
+        ptr = RInt32(ptr + &H8)
+        ptr = RInt32(ptr + &H20)
+        Console.WriteLine($"{RInt32(ptr)}")
+    End Sub
+
+
     'Private Sub ReadBitArray()
     '   Dim ptr = GetPlayerCharData1Ptr()
     '  If ptr = 0 Then Return
@@ -587,6 +600,14 @@ Public Class Main
     End Sub
 
     Private Sub Label1_Click_1(sender As Object, e As EventArgs) Handles Label1.Click
+
+    End Sub
+
+    Private Sub Label8_Click(sender As Object, e As EventArgs) Handles Label8.Click
+
+    End Sub
+
+    Private Sub Label3_Click_1(sender As Object, e As EventArgs) Handles bonfiresValueLabel.Click
 
     End Sub
 End Class
