@@ -369,10 +369,11 @@ Public Class Main
     'The program can't stay hooked for too long otherwise the game crashes. This eleviates this issue
     Dim reloadedHook = True
 
-    Private Sub scanEventFlagsAndUpdateUI()
-        ' Timer running at an interval of 500ms. Checks all the flags defined at the top
+    Dim lastPercentage As Double
 
-        'isInMainMenu()
+    Private Sub scanEventFlagsAndUpdateUI()
+        ' Timer running at an interval of 500ms. Calls the Game class to update its event flags and then updates the UI.
+
         If Game.IsPlayerLoaded() = False Then
             'Everytime the player enters a loadscreen, the hook gets disconnected and reconnected
             'If IGT returns 0, the player is in the main menu. Disconnecting in the main menu may lead to the game freezing
@@ -416,6 +417,19 @@ Public Class Main
             Return
         End If
 
+        If Game.GetClearCount > 0 Then
+            'Make sure entering NG+ doesn't override a previous run,
+            'but still allow increases to happen during the ending cutscene before the credits
+            If Game.GetTotalCompletionPercentage < lastPercentage Then
+                Invoke(
+                Sub()
+                    updateTimer.Start()
+                End Sub)
+                Return
+            End If
+        End If
+
+
         Invoke(
             Sub()
                 treasureLocationsValueLabel.Text = $"{Game.GetTreasureLocationsCleared} / {Game.GetTotalTreasureLocationsCount}"
@@ -427,7 +441,12 @@ Public Class Main
                 foggatesValueLabel.Text = $"{Game.GetFoggatesDissolved} / {Game.GetTotalFoggatesCount}"
                 bonfiresValueLabel.Text = $"{Game.GetBonfiresFullyKindled} / {Game.GetTotalBonfiresCount}"
 
-                percentageLabel.Text = $"{Game.GetTotalCompletionPercentage}%"
+                Dim totalPercentage = Convert.ToString(Game.GetTotalCompletionPercentage)
+                If Not totalPercentage.Contains(".") Then
+                    totalPercentage = String.Concat(totalPercentage, ".0")
+                End If
+                percentageLabel.Text = $"{totalPercentage}%"
+                lastPercentage = Game.GetTotalCompletionPercentage
 
                 updateTimer.Start()
             End Sub)
@@ -539,17 +558,6 @@ Public Class Main
     Private Sub UI_Exit(sender As Object, e As EventArgs) Handles MyBase.Closing
         Dim newThread = New Thread(AddressOf unhook) With {.IsBackground = True}
         newThread.Start()
-    End Sub
-
-    Private Sub CheckBonfireKindledStatus()
-        Dim ptr = If(exeVER = "Debug", RInt32(&HC815F10), RInt32(&H137E204))
-        If ptr = 0 Then Return
-        ptr = RInt32(ptr + &H98)
-        ptr = RInt32(ptr + &H11C)
-        ptr = RInt32(ptr + &HE0)
-        ptr = RInt32(ptr + &H8)
-        ptr = RInt32(ptr + &H20)
-        Console.WriteLine($"{RInt32(ptr)}")
     End Sub
 
 

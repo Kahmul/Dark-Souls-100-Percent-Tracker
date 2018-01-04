@@ -96,9 +96,9 @@ Partial Class Main
         Me.percentageLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
         Me.percentageLabel.Location = New System.Drawing.Point(255, 106)
         Me.percentageLabel.Name = "percentageLabel"
-        Me.percentageLabel.Size = New System.Drawing.Size(71, 49)
+        Me.percentageLabel.Size = New System.Drawing.Size(101, 49)
         Me.percentageLabel.TabIndex = 13
-        Me.percentageLabel.Text = "0%"
+        Me.percentageLabel.Text = "0.0%"
         '
         'Label4
         '

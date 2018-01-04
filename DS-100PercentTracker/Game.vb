@@ -332,7 +332,8 @@ Public Class Game
         Dim bonfiresPercentage As Double = kindledBonfires * (0.05 / totalBonfireFlags.Length)
 
         totalCompletionPercentage = itemPercentage + bossPercentage + nonrespawningPercentage + questlinesPercentage + shortcutsLockedDoorsPercentage + illusoryWallsPercentage + foggatesPercentage + bonfiresPercentage
-        totalCompletionPercentage = Math.Floor(totalCompletionPercentage * 100)
+        totalCompletionPercentage = Math.Floor(totalCompletionPercentage * 1000)
+        totalCompletionPercentage /= 10
     End Sub
 
     Public Shared Function GetEventFlagState(eventID As Integer) As Boolean
@@ -377,6 +378,12 @@ Public Class Game
         Dim ptr = If(exeVER = "Debug", RInt32(&H13823C4), RInt32(&H137E204))
         If ptr = 0 Then Return -1
         Return CType(RInt32(ptr + &HA28), PlayerCharacterType)
+    End Function
+
+    Public Shared Function GetClearCount() As Integer
+        Dim ptr = If(exeVER = "Debug", RInt32(&H137C8C0), RInt32(&H1378700))
+        If ptr = 0 Then Return -1
+        Return RInt32(ptr + &H3C)
     End Function
 
     Public Shared Function GetIngameTimeInMilliseconds() As Integer
@@ -498,7 +505,7 @@ Public Class Game
         End Get
     End Property
 
-    Public Shared ReadOnly Property GetTotalCompletionPercentage() As Integer
+    Public Shared ReadOnly Property GetTotalCompletionPercentage() As Double
         Get
             Return totalCompletionPercentage
         End Get
