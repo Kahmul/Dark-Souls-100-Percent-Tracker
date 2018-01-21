@@ -372,8 +372,8 @@ Public Class Main
     Dim lastPercentage As Double
 
     Private Sub scanEventFlagsAndUpdateUI()
-        ' Timer running at an interval of 500ms. Calls the Game class to update its event flags and then updates the UI.
 
+        ' Timer running at an interval of 500ms. Calls the Game class to update its event flags and then updates the UI.
         If Game.IsPlayerLoaded() = False Then
             'Everytime the player enters a loadscreen, the hook gets disconnected and reconnected
             'If IGT returns 0, the player is in the main menu. Disconnecting in the main menu may lead to the game freezing
@@ -561,31 +561,32 @@ Public Class Main
     End Sub
 
 
-    'Private Sub ReadBitArray()
-    '   Dim ptr = GetPlayerCharData1Ptr()
-    '  If ptr = 0 Then Return
+    Private Sub ReadBitArray()
+        Dim ptr = If(exeVER = "Debug", RInt32(&H1381994), RInt32(&H137D7D4))
+        If ptr = 0 Then Return
+        ptr = RInt32(ptr)
 
-    'Dim size = 4
-    '   Dim bytes = RBytes(ptr + &H1FC, size)
-    '  Dim bitArray As New BitArray(bytes)
+        Dim size = 32
+        Dim bytes = RBytes(ptr, size)
+        Dim bitArray As New BitArray(bytes)
 
-    'Bits are stored in array in reverse order
-    ' Dim indexToAccess = 11
-    '   Dim reversedIndex = size * 8 - 1 - indexToAccess
-    '  Console.WriteLine($"{bitArray(reversedIndex)}")
-    'bitArray.Set(reversedIndex, True)
-    'Dim newBytes(size) As Byte
-    'bitArray.CopyTo(newBytes, 0)
-    'WBytes(ptr + &H3C4, newBytes)
+        'Bits are stored in array in reverse order
+        Dim indexToAccess = 1
+        Dim reversedIndex = size * 8 - 1 - indexToAccess
+        Console.WriteLine($"{bitArray(reversedIndex)}")
+        'bitArray.Set(reversedIndex, True)
+        'Dim newBytes(size) As Byte
+        'bitArray.CopyTo(newBytes, 0)
+        'WBytes(ptr + &H3C4, newBytes)
 
-    'Console.WriteLine($"Length: {bitArray.Length}")
-    'Dim int As Integer
-    'For Each bit In bitArray
-    'Console.WriteLine($"{int}: {bit}")
-    'Int += 1
-    'Next
+        Console.WriteLine($"Length: {bitArray.Length}")
+        Dim int As Integer
+        For Each bit In bitArray
+            Console.WriteLine($"{int}: {bit}")
+            int += 1
+        Next
 
-    'End Sub
+    End Sub
 
     Private Sub Label2_Click(sender As Object, e As EventArgs)
 

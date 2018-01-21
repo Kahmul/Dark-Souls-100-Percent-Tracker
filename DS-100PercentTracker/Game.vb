@@ -72,7 +72,7 @@ Public Class Game
                                             1177, 11200535, 11020606, 1003, 11210021}
 
     Shared totalShortcutsLockedDoorsFlags As Array = {11810105, 11600100, 11410340, 11210102, 11210122, 11210132, 11510251, 11510257, 11510220, 11510200,
-                                                    11510210, 11020302, 11500100, 11500105, 11010101, 11010160, 11200110, 11600160, 11010100, 11700120,
+                                                    11510210, 11020300, 11500100, 11500105, 11010101, 11010160, 11200110, 11600160, 11010100, 11700120,
                                                     11700110, 11300900, 11300901, 11300210, 11100135, 11100030, 11000100, 11010621, 'Shortcuts end here
                                                     11810103, 11810104, 11810106, 11810110, 11600120, 11700300, 11700301, 11700302, 11700303, 11700304,
                                                     11700305, 11700306, 11700140, 11000111, 11500112, 11500116, 11010171, 11600110, 11010140, 11010181,
@@ -80,7 +80,7 @@ Public Class Game
                                                     }
 
     Shared totalIllusoryWallsFlags As Array = {11200120, 11300160, 11320200, 11320201, 11400210, 11510215, 11510401, 11410360, 11310100, 11210200,
-                                            11210201, 11210346, 11210025}
+                                            11210201, 11210345, 11210025}
 
     Shared totalFoggatesFlags As Array = {11510090, 11510091, 11810090, 11010090, 11300090, 11310090, 11400091, 11500090, 11500091, 11010091,
                                         11320090, 11000090, 11200090, 11700083, 11100091, 11600090}
@@ -172,6 +172,8 @@ Public Class Game
 
             If value = True Then
                 itemsPickedUp += 1
+            Else
+                Console.WriteLine(item)
             End If
         Next
 
@@ -402,12 +404,12 @@ Public Class Game
         End If
     End Function
 
-    Private Shared Function GetPressedButton() As Double
+    Public Shared Function GetPressedButton() As Double
         Dim ptr = If(exeVER = "Debug", RInt32(&H1381048), RInt32(&H137CE88))
         If ptr = 0 Then Return -1
         ptr = RInt32(ptr + 4)
         If ptr = 0 Then Return -1
-        Return RDouble(ptr + &H18C)
+        Return RInt32(ptr + &H160)
     End Function
 
     Private Shared Function GetPlayerCharData1Ptr() As IntPtr
