@@ -9,10 +9,44 @@
     'Dictionary for the hostile flags of each NPC that isn't tied to a questline. Key is just an index, values are the hostile and dead flags
     Public Shared npcHostileDeadFlags As List(Of Array)
 
+
     'Dictionary for treasure locations that have multiple pickups/event flags associated with it. Key is the first flag, values are the remaining flags
     Public Shared sharedTreasureLocationItems As Dictionary(Of Integer, Array)
 
+    Public Shared eventFlagGroups As Dictionary(Of String, Integer)
+    Public Shared eventFlagAreas As Dictionary(Of String, Integer)
+
+    Public Shared npcForestHunterFlags As List(Of Integer)
+
     Shared Sub New()
+        eventFlagGroups = New Dictionary(Of String, Integer)
+        eventFlagGroups.Add("0", 0)
+        eventFlagGroups.Add("1", &H500)
+        eventFlagGroups.Add("5", &H5F00)
+        eventFlagGroups.Add("6", &HB900)
+        eventFlagGroups.Add("7", &H11300)
+
+        eventFlagAreas = New Dictionary(Of String, Integer)
+        eventFlagAreas.Add("000", 0)
+        eventFlagAreas.Add("100", 1)
+        eventFlagAreas.Add("101", 2)
+        eventFlagAreas.Add("102", 3)
+        eventFlagAreas.Add("110", 4)
+        eventFlagAreas.Add("120", 5)
+        eventFlagAreas.Add("121", 6)
+        eventFlagAreas.Add("130", 7)
+        eventFlagAreas.Add("131", 8)
+        eventFlagAreas.Add("132", 9)
+        eventFlagAreas.Add("140", 10)
+        eventFlagAreas.Add("141", 11)
+        eventFlagAreas.Add("150", 12)
+        eventFlagAreas.Add("151", 13)
+        eventFlagAreas.Add("160", 14)
+        eventFlagAreas.Add("170", 15)
+        eventFlagAreas.Add("180", 16)
+        eventFlagAreas.Add("181", 17)
+
+
         startingClassItems = New Dictionary(Of PlayerStartingClass, Array)
 
         startingClassItems.Add(PlayerStartingClass.Warrior, {51810110, 51810100})
@@ -44,8 +78,8 @@
         npcDroppedItems.Add(1198, {50006080, 50006081}) 'Petrus
         npcDroppedItems.Add(1295, {50000300}) 'Quelana
         npcDroppedItems.Add(1177, {50006070, 50006072}) 'Rhea
-        npcDroppedItems.Add(1604, {50006310, 50006311}) 'Shiva
-        npcDroppedItems.Add(1764, {50006420, 50006421}) 'Shiva's Bodyguard
+        npcDroppedItems.Add(1604, {50006311, 50006310}) 'Shiva
+        npcDroppedItems.Add(1764, {50006421, 50006420}) 'Shiva's Bodyguard
         npcDroppedItems.Add(1402, {51010960}) 'Undead Merchant (Male)
         npcDroppedItems.Add(1272, {51400990}) 'Fair Lady
         npcDroppedItems.Add(1864, {50000501, 50000500}) 'Ciaran
@@ -72,11 +106,16 @@
         npcHostileDeadFlags.Add({1701, 1702}) 'Oswald
         npcHostileDeadFlags.Add({1197, 1198}) 'Petrus
         npcHostileDeadFlags.Add({1294, 1295}) 'Quelana
+        npcHostileDeadFlags.Add({1603, 1604}) 'Shiva
         npcHostileDeadFlags.Add({1763, 1764}) 'Shiva's Bodyguard
         npcHostileDeadFlags.Add({1401, 1402}) 'Undead Merchant (Male)
         npcHostileDeadFlags.Add({1434, 1435}) 'Domhnall
 
+        npcForestHunterFlags = New List(Of Integer)
 
+        npcForestHunterFlags.Add(11200818) 'Pharis
+        npcForestHunterFlags.Add(11200817) 'Darkroot Knight 1
+        npcForestHunterFlags.Add(11200819) 'Darkroot Knight 2
 
         sharedTreasureLocationItems = New Dictionary(Of Integer, Array)
 
@@ -95,7 +134,6 @@
         sharedTreasureLocationItems.Add(51600360, {51600361}) 'Witch Set + Beatrice's Catalyst
         sharedTreasureLocationItems.Add(51700070, {51700071}) 'Maiden Set + White Seance Ring
         sharedTreasureLocationItems.Add(51700640, {51700641}) 'Sage Set + Logan's Catalyst
-
 
     End Sub
 

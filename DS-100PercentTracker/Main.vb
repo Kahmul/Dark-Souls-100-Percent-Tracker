@@ -8,7 +8,7 @@ Public Class Main
     Shared Version As String
 
     Private WithEvents updateTimer As New System.Windows.Forms.Timer()
-    Const updateTimer_Interval = 500
+    Const updateTimer_Interval = 33
 
     Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAcess As UInt32, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Int32) As IntPtr
     Private Declare Function ReadProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
@@ -61,14 +61,6 @@ Public Class Main
 
     Dim isHooked As Boolean = False
     Public Shared exeVER As String = ""
-
-    Dim hook1mem As IntPtr
-    Public Shared getflagfuncmem As IntPtr
-    Dim setflagfuncmem As IntPtr
-
-    Dim hooks As Hashtable
-    Dim dbgHooks As Hashtable = New Hashtable
-    Dim rlsHooks As Hashtable = New Hashtable
 
     Private _targetProcess As Process = Nothing 'to keep track of it. not used yet...or is it? :thinking:
     Public Shared _targetProcessHandle As IntPtr = IntPtr.Zero 'Used for ReadProcessMemory
@@ -206,6 +198,14 @@ Public Class Main
         WriteProcessMemory(_targetProcessHandle, addr, val, val.Length, Nothing)
     End Sub
 
+    Public Shared Function ReadFlag32(address As Integer, mask As UInteger) As Boolean
+        Dim _rtnBytes(3) As Byte
+        ReadProcessMemory(_targetProcessHandle, address, _rtnBytes, 4, vbNull)
+        Dim flags = BitConverter.ToUInt32(_rtnBytes, 0)
+
+        Return (flags And mask) <> 0
+    End Function
+
     Private Sub SetDarkSoulsThreadSuspend(suspend As Boolean)
 
         If _targetProcess Is Nothing Then Return
@@ -247,6 +247,8 @@ Public Class Main
 
     End Sub
 
+    Public Shared eventFlagPtr As Integer
+
     Private Sub HookInOtherThread()
         SetHookButtonsEnabled(False, False)
 
@@ -257,15 +259,8 @@ Public Class Main
                 Return
             End If
 
-            If exeVER = "Release" Then hooks = rlsHooks
-            If exeVER = "Debug" Then hooks = dbgHooks
-
-            SetDarkSoulsThreadSuspend(True)
-
-            initFlagHook()
-            initGetFlagFunc()
-
-            SetDarkSoulsThreadSuspend(False)
+            eventFlagPtr = If(exeVER = "Debug", RInt32(&H1381994), RInt32(&H137D7D4))
+            eventFlagPtr = RInt32(eventFlagPtr + 0)
 
             Invoke(
                 Sub()
@@ -285,79 +280,6 @@ Public Class Main
         SetHookButtonsEnabled(False, True)
     End Sub
 
-    Private Sub initFlagHook()
-        hook1mem = VirtualAllocEx(_targetProcessHandle, 0, &H8000, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
-        Dim oldProtectionOut As UInteger
-        VirtualProtectEx(_targetProcessHandle, hook1mem, &H8000, PAGE_EXECUTE_READWRITE, oldProtectionOut)
-        isHooked = True
-
-        Dim a As New asm
-
-        a.AddVar("hook", hooks("hook1"))
-        a.AddVar("newmem", hook1mem)
-        a.AddVar("vardump", hook1mem + &H400)
-        a.AddVar("hookreturn", hooks("hook1return"))
-        a.AddVar("startloop", 0)
-        a.AddVar("exitloop", 0)
-
-        a.pos = hook1mem
-        a.Asm("pushad")
-        a.Asm("mov eax, vardump")
-
-        a.Asm("startloop:")
-        a.Asm("mov ecx, [eax]")
-        a.Asm("cmp ecx, 0")
-        a.Asm("je exitloop")
-
-        a.Asm("add eax, 0x8")
-        a.Asm("jmp startloop")
-
-        a.Asm("exitloop:")
-        a.Asm("mov [eax], edx")
-        a.Asm("mov edx, [esp+0x24]")
-        a.Asm("mov [eax+4], edx")
-        a.Asm("popad")
-        a.Asm("call " & hooks("hook1seteventflag").toint32())
-        a.Asm("jmp hookreturn")
-
-        WriteCodeAndFlushCache(_targetProcessHandle, hook1mem, a.bytes, a.bytes.Length, 0)
-
-        a.Clear()
-        a.AddVar("newmem", hook1mem)
-        a.pos = hooks("hook1").toint32()
-        a.Asm("jmp newmem")
-
-        WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), a.bytes, a.bytes.Length, 0)
-    End Sub
-
-    Private Sub initGetFlagFunc()
-        getflagfuncmem = VirtualAllocEx(_targetProcessHandle, 0, &H8000, MEM_COMMIT, PAGE_EXECUTE_READWRITE)
-        Dim oldProtectionOut As UInteger
-        VirtualProtectEx(_targetProcessHandle, getflagfuncmem, &H8000, PAGE_EXECUTE_READWRITE, oldProtectionOut)
-
-        Dim a As New asm
-
-        a.AddVar("newmem", getflagfuncmem)
-        a.AddVar("vardump", getflagfuncmem + &H400)
-
-        a.pos = getflagfuncmem
-        a.Asm("pushad")
-        a.Asm("mov eax, vardump")
-        a.Asm("mov eax, [eax]")
-        a.Asm("push eax")
-        a.Asm("call " & hooks("geteventflagvalue").toint32)
-        a.Asm("mov ecx, vardump")
-        a.Asm("add ecx, 4")
-        a.Asm("mov [ecx], eax")
-        a.Asm("add ecx, 4")
-        a.Asm("mov eax, 1")
-        a.Asm("mov [ecx], eax")
-        a.Asm("popad")
-        a.Asm("ret")
-
-        WriteCodeAndFlushCache(_targetProcessHandle, getflagfuncmem, a.bytes, a.bytes.Length, 0)
-    End Sub
-
     Private Sub updateTimer_Tick()
 
         Dim newThread As New Thread(AddressOf scanEventFlagsAndUpdateUI) With {.IsBackground = True}
@@ -365,27 +287,10 @@ Public Class Main
 
     End Sub
 
-    'Used to restart the hook everytime the player enters a loadscreen.
-    'The program can't stay hooked for too long otherwise the game crashes. This eleviates this issue
-    Dim reloadedHook = True
-
     Dim lastPercentage As Double
 
     Private Sub scanEventFlagsAndUpdateUI()
-
         ' Timer running at an interval of 500ms. Calls the Game class to update its event flags and then updates the UI.
-        If Game.IsPlayerLoaded() = False Then
-            'Everytime the player enters a loadscreen, the hook gets disconnected and reconnected
-            'If IGT returns 0, the player is in the main menu. Disconnecting in the main menu may lead to the game freezing
-            If reloadedHook = False And Game.GetIngameTimeInMilliseconds() <> 0 Then
-                Thread.Sleep(200)
-                rehook()
-                reloadedHook = True
-            End If
-            Return
-        End If
-
-        reloadedHook = False
 
         'Return if the player is not in his own world
         If Game.isPlayerInOwnWorld() = False Then
@@ -441,10 +346,7 @@ Public Class Main
                 foggatesValueLabel.Text = $"{Game.GetFoggatesDissolved} / {Game.GetTotalFoggatesCount}"
                 bonfiresValueLabel.Text = $"{Game.GetBonfiresFullyKindled} / {Game.GetTotalBonfiresCount}"
 
-                Dim totalPercentage = Convert.ToString(Game.GetTotalCompletionPercentage)
-                If Not totalPercentage.Contains(".") Then
-                    totalPercentage = String.Concat(totalPercentage, ".0")
-                End If
+                Dim totalPercentage = Game.GetTotalCompletionPercentage.ToString("0.0")
                 percentageLabel.Text = $"{totalPercentage}%"
                 lastPercentage = Game.GetTotalCompletionPercentage
 
@@ -460,55 +362,12 @@ Public Class Main
         Console.WriteLine($"{int}")
     End Sub
 
-    Private Sub rehook()
-        Invoke(
-            Sub()
-                updateTimer.Stop()
-
-                Dim newThread = New Thread(AddressOf RestartHook) With {.IsBackground = True}
-                newThread.Start()
-
-                updateTimer.Start()
-            End Sub)
-    End Sub
-
-
 
     Private Sub UI_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        initHooks()
-
     End Sub
-
-    Private Sub initHooks()
-
-        rlsHooks.Add("geteventflagvalue", New IntPtr(&HD60340))
-        rlsHooks.Add("hook1", New IntPtr(&HBC1CEA))
-        rlsHooks.Add("hook1return", New IntPtr(&HBC1CEF))
-        rlsHooks.Add("hook1seteventflag", New IntPtr(&HD38CB0))
-
-
-        dbgHooks.Add("geteventflagvalue", New IntPtr(&HD618D0))
-        dbgHooks.Add("hook1", New IntPtr(&HBC23CA))
-        dbgHooks.Add("hook1return", New IntPtr(&HBC23CF))
-        dbgHooks.Add("hook1seteventflag", New IntPtr(&HD3A240))
-
-    End Sub
-
-    Private Function WriteCodeAndFlushCache(ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByVal lpNumberOfBytesWritten As Integer) As Boolean
-
-        Dim result = WriteProcessMemory(hProcess, lpBaseAddress, lpBuffer, iSize, lpNumberOfBytesWritten)
-        If Not FlushInstructionCache(hProcess, lpBaseAddress, iSize) Then
-            unhook()
-            Throw New Exception("Flush Instruction Cache Failed")
-        End If
-
-        Return result
-    End Function
 
     Private Sub unhook()
-
-        SetDarkSoulsThreadSuspend(True)
 
         isHooked = False
 
@@ -516,24 +375,7 @@ Public Class Main
         Dim updateTimerTickEventHandler As New EventHandler(AddressOf updateTimer_Tick)
         RemoveHandler updateTimer.Tick, updateTimerTickEventHandler
 
-        VirtualFreeEx(_targetProcessHandle, hook1mem, 0, MEM_RELEASE)
-        VirtualFreeEx(_targetProcessHandle, getflagfuncmem, 0, MEM_RELEASE)
-
-        Dim tmpbytes() As Byte = {}
-
-        If exeVER = "Release" Then
-            tmpbytes = {&HE8, &HC1, &H6F, &H17, 0}
-            WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), tmpbytes, 5, 0)
-        End If
-        If exeVER = "Debug" Then
-            tmpbytes = {&HE8, &H71, &H7E, &H17, 0}
-            WriteCodeAndFlushCache(_targetProcessHandle, hooks("hook1"), tmpbytes, 5, 0)
-        End If
-
-        SetDarkSoulsThreadSuspend(False)
-
         DetachFromProcess()
-
     End Sub
 
     Private Sub btnUnhook_Click(sender As Object, e As EventArgs) Handles btnUnhook.Click
@@ -558,34 +400,6 @@ Public Class Main
     Private Sub UI_Exit(sender As Object, e As EventArgs) Handles MyBase.Closing
         Dim newThread = New Thread(AddressOf unhook) With {.IsBackground = True}
         newThread.Start()
-    End Sub
-
-
-    Private Sub ReadBitArray()
-        Dim ptr = If(exeVER = "Debug", RInt32(&H1381994), RInt32(&H137D7D4))
-        If ptr = 0 Then Return
-        ptr = RInt32(ptr)
-
-        Dim size = 32
-        Dim bytes = RBytes(ptr, size)
-        Dim bitArray As New BitArray(bytes)
-
-        'Bits are stored in array in reverse order
-        Dim indexToAccess = 1
-        Dim reversedIndex = size * 8 - 1 - indexToAccess
-        Console.WriteLine($"{bitArray(reversedIndex)}")
-        'bitArray.Set(reversedIndex, True)
-        'Dim newBytes(size) As Byte
-        'bitArray.CopyTo(newBytes, 0)
-        'WBytes(ptr + &H3C4, newBytes)
-
-        Console.WriteLine($"Length: {bitArray.Length}")
-        Dim int As Integer
-        For Each bit In bitArray
-            Console.WriteLine($"{int}: {bit}")
-            int += 1
-        Next
-
     End Sub
 
     Private Sub Label2_Click(sender As Object, e As EventArgs)
@@ -617,6 +431,10 @@ Public Class Main
     End Sub
 
     Private Sub Label3_Click_1(sender As Object, e As EventArgs) Handles bonfiresValueLabel.Click
+
+    End Sub
+
+    Private Sub Label2_Click_1(sender As Object, e As EventArgs) Handles Label2.Click
 
     End Sub
 End Class

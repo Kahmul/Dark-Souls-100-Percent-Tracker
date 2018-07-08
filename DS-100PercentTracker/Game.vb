@@ -52,14 +52,13 @@ Public Class Game
                                     11410900, 11410901, 11510900, 11010901, 11010902, 11200900, 11810900}
 
     Shared totalNonRespawningEnemiesFlags As Array = {11010903, 11700815, 11700816, 11010861, 11300859, 11310820, 11810850, 11810851, 11200816, 11010862,
-                                                    11000851, 11000852, 11700820, 11700821, 11000800, 11010860, 1062, 11410106, 11700810, 11010865,
+                                                    11000851, 11000852, 11700820, 11700821, 11000800, 11010860, 1062, 1034, 11410106, 11700810, 11010865,
                                                     11010863, 11200813, 11200814, 11200815, 11010900, 11200801, 11320100, 11400902, 11600850, 11600851,
                                                     11300858, 11500861, 11500862, 11500863, 11500864, 11510860, 11010864, 11100400, 11600810, 11500865,
                                                     11500867, 11515080, 11515081, 11410138, 11410139, 11410140, 11410141, 11410142, 11410143, 11410144,
                                                     11410109, 11410110, 11410111, 11410112, 11410113, 11410114, 11410115, 11410116, 11410117, 11410118,
                                                     11410119, 11410120, 11410121, 11410122, 11410123, 11410124, 11410125, 11410126, 11410127, 11410128,
-                                                    11410129, 11410130, 11410131, 11410132, 11410133, 11410134, 11410135, 11410136, 11410137, 11200818,
-                                                    11200819, 11200817, 11510863, 11510864, 11500860, 11700822, 11700823, 800, 11000850, 11010866,
+                                                    11410129, 11410130, 11410131, 11410132, 11410133, 11410134, 11410135, 11410136, 11410137, 11510863, 11510864, 11500860, 11700822, 11700823, 800, 11000850, 11010866,
                                                     11210680, 11210681, 11500900, 11510850, 11510851, 11510852, 11510853, 11700900, 11700901, 11300850,
                                                     11300851, 11300852, 11300853, 11300854, 11300855, 11400850, 11400851, 11400853, 11400854, 11400855,
                                                     11400856, 11400857, 11400858, 11200811, 11200810, 11010710, 11200812, 11210350, 11210351, 11210352,
@@ -68,7 +67,7 @@ Public Class Game
                                                     11210310, 11210311, 11210312, 11210313, 11210314, 11210315, 11210355, 11410100, 11410101, 11410102,
                                                     11410103, 11410104}
 
-    Shared totalNPCQuestlineFlags As Array = {11020101, 1862, 1462, 1431, 1115, 1313, 1254, 1097, 1626,
+    Shared totalNPCQuestlineFlags As Array = {11020101, 50000501, 1462, 1431, 1115, 1313, 1254, 1097, 1626,
                                             1177, 11200535, 11020606, 1003, 11210021}
 
     Shared totalShortcutsLockedDoorsFlags As Array = {11810105, 11600100, 11410340, 11210102, 11210122, 11210132, 11510251, 11510257, 11510220, 11510200,
@@ -83,7 +82,7 @@ Public Class Game
                                             11210201, 11210345, 11210025}
 
     Shared totalFoggatesFlags As Array = {11510090, 11510091, 11810090, 11010090, 11300090, 11310090, 11400091, 11500090, 11500091, 11010091,
-                                        11320090, 11000090, 11200090, 11700083, 11100091, 11600090}
+                                        11320090, 11000090, 11200090, 11700083, 11100091, 11600090, 11600091}
 
     Shared totalBonfireFlags As Array = {1801960, 1601961, 1601950, 1021960, 1301961, 1301960, 1011964, 1011962, 1011961, 1811961,
                                         1811960, 1201961, 1211964, 1211962, 1211961, 1211963, 1211950, 1411964, 1411963, 1411962,
@@ -141,15 +140,15 @@ Public Class Game
 
             If kindledState = 40 Then
                 kindledBonfires += 1
-            Else
+                'Else
                 'If bonfire is not fully kindled, check whether it's the AL or DoC bonfire
                 'If yes, check whether the respective Firekeeper is dead. If yes, treat the bonfire as fully kindled
-                If bonfireID = 1511960 And GetEventFlagState(1034) Then
-                    kindledBonfires += 1
-                End If
-                If bonfireID = 1401960 And GetEventFlagState(1272) Then
-                    kindledBonfires += 1
-                End If
+                '   If bonfireID = 1511960 And GetEventFlagState(1034) Then
+                '  kindledBonfires += 1
+                'End If
+                '   If bonfireID = 1401960 And GetEventFlagState(1272) Then
+                '  kindledBonfires += 1
+                'End If
             End If
             ptr = RInt32(ptr) 'Go one step deeper in the struct
         Next
@@ -172,8 +171,6 @@ Public Class Game
 
             If value = True Then
                 itemsPickedUp += 1
-            Else
-                Console.WriteLine(item)
             End If
         Next
 
@@ -257,7 +254,6 @@ Public Class Game
 
         For Each item In totalShortcutsLockedDoorsFlags
             value = GetEventFlagState(item)
-
             If value = True Then
                 shortcutsLockedDoorsUnlocked += 1
             End If
@@ -279,8 +275,13 @@ Public Class Game
                 If value = True Then
                     npcQuestlinesCompleted += 1
                 End If
-            ElseIf item = 1862 Then 'Ciaran can be disabled after giving her the soul, which uses another flag
-                value = GetEventFlagState(1865)
+                'ElseIf item = 1862 Then 'Ciaran can be disabled after giving her the soul, which uses another flag
+                '   value = GetEventFlagState(1865)
+                '  If value = True Then
+                ' npcQuestlinesCompleted += 1
+                'End If
+            ElseIf item = 11200535 Then 'Shiva can also be dead
+                value = GetEventFlagState(1604)
                 If value = True Then
                     npcQuestlinesCompleted += 1
                 End If
@@ -321,6 +322,17 @@ Public Class Game
             End If
         Next
 
+        If GetEventFlagState(857) = False Then
+            For Each hunterDead In Dictionaries.npcForestHunterFlags
+                If GetEventFlagState(hunterDead) = False Then
+                    totalNonRespawningEnemiesCount += 1
+                Else
+                    totalNonRespawningEnemiesCount += 1
+                    nonRespawningEnemiesKilled += 1
+                End If
+            Next
+        End If
+
     End Sub
 
     Private Shared Sub updateCompletionPercentage()
@@ -338,12 +350,34 @@ Public Class Game
         totalCompletionPercentage /= 10
     End Sub
 
+    Public Shared Function GetEventFlagAddress(eventID As Integer, ByRef mask As UInteger) As Integer
+        Dim idString As String = eventID.ToString("D8")
+        If idString.Length = 8 Then
+            Dim group = idString.Substring(0, 1)
+            Dim area = idString.Substring(1, 3)
+            Dim section = Int32.Parse(idString.Substring(4, 1))
+            Dim number = Int32.Parse(idString.Substring(5, 3))
+
+            If Dictionaries.eventFlagGroups.Keys.Contains(group) And Dictionaries.eventFlagAreas.Keys.Contains(area) Then
+                Dim offset = Dictionaries.eventFlagGroups.Item(group)
+                offset += Dictionaries.eventFlagAreas.Item(area) * &H500
+                offset += section * 128
+                offset += (number - (number Mod 32)) / 8
+
+                mask = CType(&H80000000, UInteger) >> (number Mod 32)
+                Return eventFlagPtr + offset
+            End If
+        End If
+
+        Throw New Exception()
+
+    End Function
+
     Public Shared Function GetEventFlagState(eventID As Integer) As Boolean
-        WInt32(getflagfuncmem + &H400, eventID)
-        Dim newThreadHook = CreateRemoteThread(_targetProcessHandle, 0, 0, getflagfuncmem, 0, 0, 0)
-        WaitForSingleObject(newThreadHook, &HFFFFFFFFUI)
-        CloseHandle(newThreadHook)
-        Return Math.Floor(RInt32(getflagfuncmem + &H404) / (2 ^ 7)) = 1
+        Dim mask As UInteger
+        Dim address = GetEventFlagAddress(eventID, mask)
+
+        Return ReadFlag32(address, mask)
     End Function
 
     Public Shared Function GetCurrentArea() As Map
