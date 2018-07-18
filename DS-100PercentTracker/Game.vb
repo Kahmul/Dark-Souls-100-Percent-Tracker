@@ -364,7 +364,7 @@ Public Class Game
                 offset += section * 128
                 offset += (number - (number Mod 32)) / 8
 
-                mask = CType(&H80000000, UInteger) >> (number Mod 32)
+                mask = &H80000000UI >> (number Mod 32)
                 Return eventFlagPtr + offset
             End If
         End If

@@ -42,6 +42,7 @@ Partial Class Main
         Me.Label1 = New System.Windows.Forms.Label()
         Me.bonfiresValueLabel = New System.Windows.Forms.Label()
         Me.Label8 = New System.Windows.Forms.Label()
+        Me.Label3 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
         'btnHook
@@ -254,12 +255,24 @@ Partial Class Main
         Me.Label8.TabIndex = 32
         Me.Label8.Text = "Kindled Bonfires:"
         '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label3.ForeColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.Label3.Location = New System.Drawing.Point(417, 275)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(33, 17)
+        Me.Label3.TabIndex = 34
+        Me.Label3.Text = "v1.3"
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.ClientSize = New System.Drawing.Size(459, 302)
+        Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.bonfiresValueLabel)
         Me.Controls.Add(Me.Label8)
         Me.Controls.Add(Me.Label1)
@@ -308,4 +321,5 @@ Partial Class Main
     Friend WithEvents Label1 As Label
     Friend WithEvents bonfiresValueLabel As Label
     Friend WithEvents Label8 As Label
+    Friend WithEvents Label3 As Label
 End Class
