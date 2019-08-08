@@ -10,6 +10,9 @@ Public Class Main
     Private WithEvents updateTimer As New System.Windows.Forms.Timer()
     Const updateTimer_Interval = 33
 
+    Private WithEvents hookTimer As New System.Windows.Forms.Timer()
+    Const hookTimer_Interval = 1000
+
     Private Declare Function OpenProcess Lib "kernel32.dll" (ByVal dwDesiredAcess As UInt32, ByVal bInheritHandle As Boolean, ByVal dwProcessId As Int32) As IntPtr
     Private Declare Function ReadProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByRef lpNumberOfBytesRead As Integer) As Boolean
     Private Declare Function WriteProcessMemory Lib "kernel32" (ByVal hProcess As IntPtr, ByVal lpBaseAddress As IntPtr, ByVal lpBuffer() As Byte, ByVal iSize As Integer, ByVal lpNumberOfBytesWritten As Integer) As Boolean
@@ -235,12 +238,11 @@ Public Class Main
     Private Sub SetHookButtonsEnabled(hookEnabled As Boolean, unhookEnabled As Boolean)
         Invoke(
             Sub()
-                btnHook.Enabled = hookEnabled
-                btnUnhook.Enabled = unhookEnabled
+                HookedLabel.Enabled = unhookEnabled
             End Sub)
     End Sub
 
-    Private Sub btnHook_Click(sender As Object, e As EventArgs) Handles btnHook.Click
+    Private Sub btnHook_Click(sender As Object, e As EventArgs)
 
         Dim newThread = New Thread(AddressOf HookInOtherThread) With {.IsBackground = True}
         newThread.Start()
@@ -270,9 +272,9 @@ Public Class Main
                     updateTimer.Start()
                 End Sub)
 
-
+            isHooked = True
         Else
-            MsgBox("Couldn't find the Dark Souls process!")
+            'MsgBox("Couldn't find the Dark Souls process!")
             SetHookButtonsEnabled(True, False)
             Return
         End If
@@ -365,6 +367,28 @@ Public Class Main
 
     Private Sub UI_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+        Invoke(
+               Sub()
+                   hookTimer = New System.Windows.Forms.Timer
+                   hookTimer.Interval = hookTimer_Interval
+                   AddHandler hookTimer.Tick, AddressOf hookTimer_Tick
+                   hookTimer.Start()
+               End Sub)
+
+    End Sub
+
+    Private Sub hookTimer_Tick()
+
+        If (_targetProcess Is Nothing) OrElse (_targetProcess.HasExited = True) Then
+            If (isHooked = True) Then
+                Dim thread = New Thread(AddressOf DoUnhookInOtherThread) With {.IsBackground = True}
+                thread.Start()
+                Return
+            End If
+            Dim newThread = New Thread(AddressOf HookInOtherThread) With {.IsBackground = True}
+            newThread.Start()
+        End If
+
     End Sub
 
     Private Sub unhook()
@@ -372,13 +396,16 @@ Public Class Main
         isHooked = False
 
         updateTimer.Stop()
+        hookTimer.Stop()
         Dim updateTimerTickEventHandler As New EventHandler(AddressOf updateTimer_Tick)
         RemoveHandler updateTimer.Tick, updateTimerTickEventHandler
+        Dim hookTimerTickEventHandler As New EventHandler(AddressOf hookTimer_Tick)
+        RemoveHandler updateTimer.Tick, hookTimerTickEventHandler
 
         DetachFromProcess()
     End Sub
 
-    Private Sub btnUnhook_Click(sender As Object, e As EventArgs) Handles btnUnhook.Click
+    Private Sub btnUnhook_Click(sender As Object, e As EventArgs)
 
         Dim newThread = New Thread(AddressOf DoUnhookInOtherThread) With {.IsBackground = True}
         newThread.Start()
@@ -439,6 +466,10 @@ Public Class Main
     End Sub
 
     Private Sub Label3_Click_2(sender As Object, e As EventArgs) Handles Label3.Click
+
+    End Sub
+
+    Private Sub HookedLabel_Click(sender As Object, e As EventArgs) Handles HookedLabel.Click
 
     End Sub
 End Class

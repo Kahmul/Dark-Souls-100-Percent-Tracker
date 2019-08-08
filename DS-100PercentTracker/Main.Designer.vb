@@ -23,8 +23,6 @@ Partial Class Main
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Main))
-        Me.btnHook = New System.Windows.Forms.Button()
-        Me.btnUnhook = New System.Windows.Forms.Button()
         Me.treasureLocationsLabel = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.percentageLabel = New System.Windows.Forms.Label()
@@ -43,30 +41,8 @@ Partial Class Main
         Me.bonfiresValueLabel = New System.Windows.Forms.Label()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
+        Me.HookedLabel = New System.Windows.Forms.Label()
         Me.SuspendLayout()
-        '
-        'btnHook
-        '
-        Me.btnHook.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.btnHook.FlatStyle = System.Windows.Forms.FlatStyle.System
-        Me.btnHook.Location = New System.Drawing.Point(16, 272)
-        Me.btnHook.Name = "btnHook"
-        Me.btnHook.Size = New System.Drawing.Size(75, 23)
-        Me.btnHook.TabIndex = 0
-        Me.btnHook.Text = "Hook"
-        Me.btnHook.UseVisualStyleBackColor = True
-        '
-        'btnUnhook
-        '
-        Me.btnUnhook.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.btnUnhook.Enabled = False
-        Me.btnUnhook.FlatStyle = System.Windows.Forms.FlatStyle.System
-        Me.btnUnhook.Location = New System.Drawing.Point(97, 272)
-        Me.btnUnhook.Name = "btnUnhook"
-        Me.btnUnhook.Size = New System.Drawing.Size(75, 23)
-        Me.btnUnhook.TabIndex = 4
-        Me.btnUnhook.Text = "Unhook"
-        Me.btnUnhook.UseVisualStyleBackColor = True
         '
         'treasureLocationsLabel
         '
@@ -258,13 +234,25 @@ Partial Class Main
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Font = New System.Drawing.Font("Calibri", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label3.Font = New System.Drawing.Font("Calibri", 9.0!, System.Drawing.FontStyle.Bold)
         Me.Label3.ForeColor = System.Drawing.SystemColors.ButtonHighlight
-        Me.Label3.Location = New System.Drawing.Point(417, 275)
+        Me.Label3.Location = New System.Drawing.Point(410, 276)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(33, 17)
+        Me.Label3.Size = New System.Drawing.Size(37, 14)
         Me.Label3.TabIndex = 34
-        Me.Label3.Text = "v1.3"
+        Me.Label3.Text = "v1.3.1"
+        '
+        'HookedLabel
+        '
+        Me.HookedLabel.AutoSize = True
+        Me.HookedLabel.Enabled = False
+        Me.HookedLabel.Font = New System.Drawing.Font("Calibri", 9.0!, System.Drawing.FontStyle.Bold)
+        Me.HookedLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight
+        Me.HookedLabel.Location = New System.Drawing.Point(12, 276)
+        Me.HookedLabel.Name = "HookedLabel"
+        Me.HookedLabel.Size = New System.Drawing.Size(59, 14)
+        Me.HookedLabel.TabIndex = 35
+        Me.HookedLabel.Text = "✓  Hooked"
         '
         'Main
         '
@@ -272,6 +260,7 @@ Partial Class Main
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.ClientSize = New System.Drawing.Size(459, 302)
+        Me.Controls.Add(Me.HookedLabel)
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.bonfiresValueLabel)
         Me.Controls.Add(Me.Label8)
@@ -288,9 +277,7 @@ Partial Class Main
         Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.Label4)
         Me.Controls.Add(Me.percentageLabel)
-        Me.Controls.Add(Me.btnUnhook)
         Me.Controls.Add(Me.Label2)
-        Me.Controls.Add(Me.btnHook)
         Me.Controls.Add(Me.treasureLocationsLabel)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
@@ -301,9 +288,6 @@ Partial Class Main
         Me.PerformLayout()
 
     End Sub
-
-    Friend WithEvents btnHook As Button
-    Friend WithEvents btnUnhook As Button
     Friend WithEvents percentageLabel As Label
     Friend WithEvents Label2 As Label
     Friend WithEvents treasureLocationsLabel As Label
@@ -322,4 +306,5 @@ Partial Class Main
     Friend WithEvents bonfiresValueLabel As Label
     Friend WithEvents Label8 As Label
     Friend WithEvents Label3 As Label
+    Friend WithEvents HookedLabel As Label
 End Class

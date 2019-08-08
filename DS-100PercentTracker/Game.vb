@@ -171,6 +171,8 @@ Public Class Game
 
             If value = True Then
                 itemsPickedUp += 1
+            Else
+                Debug.WriteLine(item)
             End If
         Next
 
@@ -182,6 +184,8 @@ Public Class Game
 
             If value = True Then
                 itemsPickedUp += 1
+            Else
+                Debug.WriteLine(item)
             End If
         Next
 
@@ -201,6 +205,8 @@ Public Class Game
                 End If
             End If
         Next
+
+        Debug.WriteLine("")
 
     End Sub
 
