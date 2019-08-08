@@ -9,6 +9,7 @@ Public Class Main
 
     Private WithEvents updateTimer As New System.Windows.Forms.Timer()
     Const updateTimer_Interval = 33
+    Private isUpdating = False
 
     Private WithEvents hookTimer As New System.Windows.Forms.Timer()
     Const hookTimer_Interval = 1000
@@ -294,8 +295,14 @@ Public Class Main
     Private Sub scanEventFlagsAndUpdateUI()
         ' Timer running at an interval of 500ms. Calls the Game class to update its event flags and then updates the UI.
 
+        isUpdating = True
+
+        eventFlagPtr = If(exeVER = "Debug", RInt32(&H1381994), RInt32(&H137D7D4))
+        eventFlagPtr = RInt32(eventFlagPtr + 0)
+
         'Return if the player is not in his own world
         If Game.isPlayerInOwnWorld() = False Then
+            isUpdating = False
             Return
         End If
 
@@ -305,8 +312,10 @@ Public Class Main
         Thread.Sleep(50)
         Dim nextIGT = Game.GetIngameTimeInMilliseconds()
         If nextIGT = currentIGT Then
+            isUpdating = False
             Return
         End If
+
 
         Invoke(
             Sub()
@@ -317,6 +326,7 @@ Public Class Main
 
         'Before updating the UI, check if the player is in a loadscreen to make sure all flags have been accounted for
         If Game.IsPlayerLoaded() = False Then
+            isUpdating = False
             Invoke(
                 Sub()
                     updateTimer.Start()
@@ -332,6 +342,7 @@ Public Class Main
                 Sub()
                     updateTimer.Start()
                 End Sub)
+                isUpdating = False
                 Return
             End If
         End If
@@ -354,6 +365,7 @@ Public Class Main
 
                 updateTimer.Start()
             End Sub)
+        isUpdating = False
     End Sub
 
     Private Sub isInMainMenu()
@@ -361,7 +373,6 @@ Public Class Main
         If ptr = 0 Then Return
         'Dim int = CType(RBytes(ptr + &HB4E, 1)(0), Integer)
         Dim int = RInt32(ptr + &HFD0)
-        Console.WriteLine($"{int}")
     End Sub
 
 
@@ -380,7 +391,7 @@ Public Class Main
     Private Sub hookTimer_Tick()
 
         If (_targetProcess Is Nothing) OrElse (_targetProcess.HasExited = True) Then
-            If (isHooked = True) Then
+            If (_targetProcess IsNot Nothing) AndAlso (_targetProcess.HasExited = True) Then
                 Dim thread = New Thread(AddressOf DoUnhookInOtherThread) With {.IsBackground = True}
                 thread.Start()
                 Return
@@ -388,7 +399,6 @@ Public Class Main
             Dim newThread = New Thread(AddressOf HookInOtherThread) With {.IsBackground = True}
             newThread.Start()
         End If
-
     End Sub
 
     Private Sub unhook()
@@ -396,11 +406,8 @@ Public Class Main
         isHooked = False
 
         updateTimer.Stop()
-        hookTimer.Stop()
         Dim updateTimerTickEventHandler As New EventHandler(AddressOf updateTimer_Tick)
         RemoveHandler updateTimer.Tick, updateTimerTickEventHandler
-        Dim hookTimerTickEventHandler As New EventHandler(AddressOf hookTimer_Tick)
-        RemoveHandler updateTimer.Tick, hookTimerTickEventHandler
 
         DetachFromProcess()
     End Sub
@@ -425,6 +432,14 @@ Public Class Main
     End Sub
 
     Private Sub UI_Exit(sender As Object, e As EventArgs) Handles MyBase.Closing
+        While (isUpdating = True)
+
+        End While
+
+        hookTimer.Stop()
+        Dim hookTimerTickEventHandler As New EventHandler(AddressOf hookTimer_Tick)
+        RemoveHandler updateTimer.Tick, hookTimerTickEventHandler
+
         Dim newThread = New Thread(AddressOf unhook) With {.IsBackground = True}
         newThread.Start()
     End Sub
