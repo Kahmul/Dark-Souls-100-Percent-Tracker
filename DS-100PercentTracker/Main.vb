@@ -9,7 +9,6 @@ Public Class Main
 
     Private WithEvents updateTimer As New System.Windows.Forms.Timer()
     Const updateTimer_Interval = 33
-    Private isUpdating = False
 
     Private WithEvents hookTimer As New System.Windows.Forms.Timer()
     Const hookTimer_Interval = 1000
@@ -285,34 +284,31 @@ Public Class Main
 
     Private Sub updateTimer_Tick()
 
-        Dim newThread As New Thread(AddressOf scanEventFlagsAndUpdateUI) With {.IsBackground = True}
-        newThread.Start()
+        Dim updateThread = New Thread(AddressOf scanEventFlagsAndUpdateUI) With {.IsBackground = True}
+        updateThread.Start()
 
     End Sub
 
     Dim lastPercentage As Double
 
+
     Private Sub scanEventFlagsAndUpdateUI()
         ' Timer running at an interval of 500ms. Calls the Game class to update its event flags and then updates the UI.
-
-        isUpdating = True
 
         eventFlagPtr = If(exeVER = "Debug", RInt32(&H1381994), RInt32(&H137D7D4))
         eventFlagPtr = RInt32(eventFlagPtr + 0)
 
         'Return if the player is not in his own world
         If Game.isPlayerInOwnWorld() = False Then
-            isUpdating = False
             Return
         End If
 
         'If the IGT doesn't change, then the player entered a loading screen or is in the main menu
         'Additional check to isPlayerLoaded() because it returns true in some cases where the player is not actually in-game
         Dim currentIGT = Game.GetIngameTimeInMilliseconds()
-        Thread.Sleep(50)
+        Thread.Sleep(34)
         Dim nextIGT = Game.GetIngameTimeInMilliseconds()
         If nextIGT = currentIGT Then
-            isUpdating = False
             Return
         End If
 
@@ -326,7 +322,6 @@ Public Class Main
 
         'Before updating the UI, check if the player is in a loadscreen to make sure all flags have been accounted for
         If Game.IsPlayerLoaded() = False Then
-            isUpdating = False
             Invoke(
                 Sub()
                     updateTimer.Start()
@@ -342,7 +337,6 @@ Public Class Main
                 Sub()
                     updateTimer.Start()
                 End Sub)
-                isUpdating = False
                 Return
             End If
         End If
@@ -365,7 +359,6 @@ Public Class Main
 
                 updateTimer.Start()
             End Sub)
-        isUpdating = False
     End Sub
 
     Private Sub isInMainMenu()
@@ -432,9 +425,6 @@ Public Class Main
     End Sub
 
     Private Sub UI_Exit(sender As Object, e As EventArgs) Handles MyBase.Closing
-        While (isUpdating = True)
-
-        End While
 
         hookTimer.Stop()
         Dim hookTimerTickEventHandler As New EventHandler(AddressOf hookTimer_Tick)
