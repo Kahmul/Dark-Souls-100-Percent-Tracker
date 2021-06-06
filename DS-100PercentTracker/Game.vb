@@ -41,11 +41,11 @@ Public Class Game
                                     51600510, 51600290, 51700000, 51700010, 51700040, 51700060, 51700070, 51700080, 51700120, 51700150,
                                     51700160, 51700170, 51700180, 51700200, 51700210, 51700650, 51700510, 51700520, 51700530, 51700540,
                                     51700560, 51700580, 51700590, 51700600, 51700630, 51700640, 51700020, 51700050, 51800050, 51810000,
-                                    51810060, 51810070, 51810080,
-                                    51100980, 'Firesurge hollow item flag
-                                    51700990, 'Duke's Archives Tower Cell Key Serpent item flag
-                                    51320990  'Stone Dragon Tail
-                                        }
+                                    51810060, 51810070, 51810080, 51700990  'Duke's Archives Tower Cell Key Serpent item flag                          
+                                    }
+    '51100980, 'Firesurge hollow item flag
+    '51320990  'Stone Dragon Tail
+
 
     Shared totalBossFlags As Array = {2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14,
                                     15, 16, 11210000, 11210001, 11210002, 11210004, 11410410,
@@ -68,7 +68,7 @@ Public Class Game
                                                     11410103, 11410104}
 
     Shared totalNPCQuestlineFlags As Array = {11020101, 50000501, 1462, 1431, 1115, 1313, 1254, 1097, 1626,
-                                            1177, 11200535, 11020606, 1003, 11210021}
+                                            1177, 11200535, 11020606, 1012, 11210021}
 
     Shared totalShortcutsLockedDoorsFlags As Array = {11810105, 11600100, 11410340, 11210102, 11210122, 11210132, 11510251, 11510257, 11510220, 11510200,
                                                     11510210, 11020300, 11500100, 11500105, 11010101, 11010160, 11200110, 11600160, 11010100, 11700120,
@@ -270,7 +270,7 @@ Public Class Game
 
             If value = True Then
                 npcQuestlinesCompleted += 1
-            ElseIf item = 1003 Then 'Solaire has two outcomes: dead or rescued in Izalith
+            ElseIf item = 1012 Then 'Solaire has two outcomes: sent to the Kiln or dead in Izalith
                 value = GetEventFlagState(1011)
                 If value = True Then
                     npcQuestlinesCompleted += 1
