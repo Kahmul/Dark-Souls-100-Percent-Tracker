@@ -240,7 +240,7 @@ Partial Class Main
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(37, 14)
         Me.Label3.TabIndex = 34
-        Me.Label3.Text = "v1.3.4"
+        Me.Label3.Text = "v1.3.5"
         '
         'HookedLabel
         '

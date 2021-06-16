@@ -120,7 +120,7 @@ Public Class Game
     End Sub
 
     Private Shared Sub updateFullyKindledBonfires()
-        Dim ptr = If(exeVER = "Debug", RInt32(&H13823C4), RInt32(&H137E204))
+        Dim ptr = GetOnlineInfoPtr()
         ptr = RInt32(ptr + &HB48)
         ptr = RInt32(ptr + &H24)
         ptr = RInt32(ptr)
@@ -381,7 +381,7 @@ Public Class Game
     End Function
 
     Public Shared Function GetCurrentArea() As Map
-        Dim ptr = If(exeVER = "Debug", RInt32(&H13823C4), RInt32(&H137E204))
+        Dim ptr = GetOnlineInfoPtr()
         If ptr = 0 Then Return -1
 
         Dim world = CType(RBytes(ptr + &HA13, 1)(0), Integer)
@@ -391,7 +391,7 @@ Public Class Game
     End Function
 
     Public Shared Function IsPlayerLoaded() As Boolean
-        Dim ptr = If(exeVER = "Debug", RInt32(&H1381E30), RInt32(&H137DC70))
+        Dim ptr = GetPlayerStructPtr()
         If ptr = 0 Then Return False
         ptr = RInt32(ptr + 4)
         Return ptr <> 0
@@ -403,7 +403,7 @@ Public Class Game
     End Function
 
     Private Shared Function GetPlayerStartingClass() As PlayerStartingClass
-        Dim ptr = If(exeVER = "Debug", RInt32(&H137C8C0), RInt32(&H1378700))
+        Dim ptr = GetCharData2Ptr()
         If ptr = 0 Then Return PlayerStartingClass.None
         ptr = RInt32(ptr + 8)
         If ptr = 0 Then Return PlayerStartingClass.None
@@ -411,39 +411,73 @@ Public Class Game
     End Function
 
     Private Shared Function GetPlayerCharacterType() As PlayerCharacterType
-        Dim ptr = If(exeVER = "Debug", RInt32(&H13823C4), RInt32(&H137E204))
-        If ptr = 0 Then Return -1
-        Return CType(RInt32(ptr + &HA28), PlayerCharacterType)
+        If exeVER = "Debug" Then
+            Return CType(RInt32(GetOnlineInfoPtr() + &HA28), PlayerCharacterType)
+        ElseIf exeVER = "Release" Then
+            Return CType(RInt32(GetOnlineInfoPtr() + &HA28), PlayerCharacterType)
+        Else
+            Return CType(RInt32(GetOnlineInfoPtr() + &HA28), PlayerCharacterType)
+        End If
+    End Function
+
+    Private Shared Function GetOnlineInfoPtr() As IntPtr
+        If exeVER = "Debug" Then
+            Return RInt32(&H13823C4)
+        ElseIf exeVER = "Release" Then
+            Return RInt32(&H137E204)
+        Else
+            Return RInt32(&H137B204)
+        End If
+    End Function
+
+    Private Shared Function GetPlayerStructPtr() As IntPtr
+        If exeVER = "Debug" Then
+            Return RInt32(&H1381E30)
+        ElseIf exeVER = "Release" Then
+            Return RInt32(&H137DC70)
+        Else
+            Return RInt32(&H137AC70)
+        End If
     End Function
 
     Public Shared Function GetClearCount() As Integer
-        Dim ptr = If(exeVER = "Debug", RInt32(&H137C8C0), RInt32(&H1378700))
-        If ptr = 0 Then Return -1
-        Return RInt32(ptr + &H3C)
+        If exeVER = "Debug" Then
+            Return RInt32(GetCharData2Ptr() + &H3C)
+        ElseIf exeVER = "Release" Then
+            Return RInt32(GetCharData2Ptr() + &H3C)
+        Else
+            Return RInt32(GetCharData2Ptr() + &H3C)
+        End If
     End Function
 
     Public Shared Function GetIngameTimeInMilliseconds() As Integer
         If exeVER = "Debug" Then
             Return RInt32(RInt32(&H137C8C0) + &H68)
-        Else
+        ElseIf exeVER = "Release" Then
             Return RInt32(RInt32(&H1378700) + &H68)
-        End If
-    End Function
-
-    Private Shared Function GetCurrentSaveSlot() As Integer
-        If exeVER = "Debug" Then
-            Return RInt32(RInt32(&H137C660) + &HA70)
         Else
-            Return RInt32(RInt32(&H13784A0) + &HA70)
+            Return RInt32(RInt32(&H1375700) + &H68)
         End If
     End Function
 
-    Public Shared Function GetPressedButton() As Double
-        Dim ptr = If(exeVER = "Debug", RInt32(&H1381048), RInt32(&H137CE88))
-        If ptr = 0 Then Return -1
-        ptr = RInt32(ptr + 4)
-        If ptr = 0 Then Return -1
-        Return RInt32(ptr + &H160)
+    Public Shared Function GetCharData2Ptr() As IntPtr
+        If exeVER = "Debug" Then
+            Return RInt32(&H137C8C0)
+        ElseIf exeVER = "Release" Then
+            Return RInt32(&H1378700)
+        Else
+            Return RInt32(&H1375700)
+        End If
+    End Function
+
+    Public Shared Function GetEventFlagPtr() As IntPtr
+        If exeVER = "Debug" Then
+            Return RInt32(RInt32(&H1381994) + 0)
+        ElseIf exeVER = "Release" Then
+            Return RInt32(RInt32(&H137D7D4) + 0)
+        Else
+            Return RInt32(RInt32(&H137A7D4) + 0)
+        End If
     End Function
 
     Private Shared Function GetPlayerCharData1Ptr() As IntPtr

@@ -257,13 +257,12 @@ Public Class Main
         If ScanForProcess("DARK SOULS", True) Then
             checkDarkSoulsVersion()
             Debug.WriteLine(exeVER)
-            If Not (exeVER = "Debug" Or exeVER = "Release") Then
-                'MsgBox("Invalid EXE type.")
-                'Return
+            If Not (exeVER = "Debug" Or exeVER = "Release" Or exeVER = "Beta") Then
+                MsgBox("Invalid EXE type.")
+                Return
             End If
 
-            eventFlagPtr = If(exeVER = "Debug", RInt32(&H1381994), RInt32(&H137D7D4))
-            eventFlagPtr = RInt32(eventFlagPtr + 0)
+            eventFlagPtr = Game.GetEventFlagPtr()
 
             Invoke(
                 Sub()
@@ -297,8 +296,7 @@ Public Class Main
         ' Timer running at an interval of 500ms. Calls the Game class to update its event flags and then updates the UI.
 
 
-        eventFlagPtr = If(exeVER = "Debug", RInt32(&H1381994), RInt32(&H137D7D4))
-        eventFlagPtr = RInt32(eventFlagPtr + 0)
+        eventFlagPtr = Game.GetEventFlagPtr()
 
         'Return if the player is not in his own world
         If Game.isPlayerInOwnWorld() = False Then
